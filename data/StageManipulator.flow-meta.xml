@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <assignments>
+        <name>Assign_Stage</name>
+        <label>Assign Stage</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>$Flow.CurrentStage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>My_First_Stage_Var</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Flow.ActiveStages</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>My_First_Stage_Var</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Info_in_the_middle</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Second_Assign_Stage</name>
+        <label>Second Assign Stage Action</label>
+        <locationX>176</locationX>
+        <locationY>458</locationY>
+        <assignmentItems>
+            <assignToReference>$Flow.CurrentStage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>My_rather_middle_stage</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Flow.ActiveStages</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>My_rather_middle_stage</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Info_in_the_end</targetReference>
+        </connector>
+    </assignments>
+    <environments>Default</environments>
+    <interviewLabel>StageManipulator {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>StageManipulator</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <screens>
+        <name>Info_at_the_beginning</name>
+        <label>Info at the beginning</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Assign_Stage</targetReference>
+        </connector>
+        <fields>
+            <name>ShowCurrentStage</name>
+            <fieldText>&lt;p&gt;The current stage is: &quot;{!$Flow.CurrentStage}&quot;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <helpText>&lt;p&gt;Here you see some info&lt;/p&gt;</helpText>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Info_in_the_end</name>
+        <label>Info in the end</label>
+        <locationX>176</locationX>
+        <locationY>566</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>Copy_1_of_Copy_2_of_ShowCurrentStage</name>
+            <fieldText>&lt;p&gt;Now the current stage is: &quot;{!$Flow.CurrentStage}&quot;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Copy_1_of_AllStagesAvailable</name>
+            <fieldText>&lt;p&gt;Active stages are: &quot;{!$Flow.ActiveStages}&quot;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <helpText>&lt;p&gt;Here you see some info&lt;/p&gt;</helpText>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Info_in_the_middle</name>
+        <label>Info in the middle</label>
+        <locationX>176</locationX>
+        <locationY>350</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <connector>
+            <targetReference>Second_Assign_Stage</targetReference>
+        </connector>
+        <fields>
+            <name>Copy_1_of_ShowCurrentStage</name>
+            <fieldText>&lt;p&gt;Now the current stage is: &quot;{!$Flow.CurrentStage}&quot;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>AllStagesAvailable</name>
+            <fieldText>&lt;p&gt;Active stages are: &quot;{!$Flow.ActiveStages}&quot;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <helpText>&lt;p&gt;Here you see some info&lt;/p&gt;</helpText>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <stages>
+        <name>My_First_Stage_Var</name>
+        <isActive>false</isActive>
+        <label>My First Stage Variable</label>
+        <stageOrder>5</stageOrder>
+    </stages>
+    <stages>
+        <name>My_rather_middle_stage</name>
+        <isActive>false</isActive>
+        <label>My_rather_middle_stage</label>
+        <stageOrder>20</stageOrder>
+    </stages>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Info_at_the_beginning</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+</Flow>

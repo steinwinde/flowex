@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <assignments>
+        <name>Assign_First_Line</name>
+        <label>Assign First Line</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <assignmentItems>
+            <assignToReference>TrickyString</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>First Line</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assignment_2</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assignment_2</name>
+        <label>Assignment 2</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <assignmentItems>
+            <assignToReference>TrickyString</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>\\nSecond Line</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>TrickyString</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>\nThird Line</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>TrickyString</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>\Fourth Lines</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>TrickyString</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Fifth Line\</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>TrickyString</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <stringValue>Five &lt; Six</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Result_Screen</targetReference>
+        </connector>
+    </assignments>
+    <environments>Default</environments>
+    <interviewLabel>Tricky Strings {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Tricky Strings</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <screens>
+        <name>Result_Screen</name>
+        <label>Result Screen</label>
+        <locationX>176</locationX>
+        <locationY>350</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>true</allowPause>
+        <fields>
+            <name>ResultScreen</name>
+            <fieldText>&lt;p&gt;Result: &quot;{!TrickyString}&quot;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_First_Line</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>TrickyString</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

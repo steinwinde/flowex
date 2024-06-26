@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <assignments>
+        <name>Assign_Variable</name>
+        <label>Assign Variable</label>
+        <locationX>446</locationX>
+        <locationY>323</locationY>
+        <assignmentItems>
+            <assignToReference>Bingo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>11.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Decision_1</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assignment_3</name>
+        <label>Assignment 3</label>
+        <locationX>314</locationX>
+        <locationY>539</locationY>
+        <assignmentItems>
+            <assignToReference>Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>11 is quite nice</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Assignment_4</name>
+        <label>Assignment 4</label>
+        <locationX>578</locationX>
+        <locationY>539</locationY>
+        <assignmentItems>
+            <assignToReference>Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Why go negative?</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Assignment_5</name>
+        <label>Assignment 5</label>
+        <locationX>842</locationX>
+        <locationY>539</locationY>
+        <assignmentItems>
+            <assignToReference>Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>You go for the default outcome</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Best</name>
+        <label>Best</label>
+        <locationX>50</locationX>
+        <locationY>539</locationY>
+        <assignmentItems>
+            <assignToReference>Message</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>You hit the jack pot</stringValue>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Decision_1</name>
+        <label>Decision 1</label>
+        <locationX>446</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Assignment_5</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Variable_is_42</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Bingo</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>42.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Best</targetReference>
+            </connector>
+            <label>Variable is 42</label>
+        </rules>
+        <rules>
+            <name>Variable_is_11</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Bingo</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>11.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assignment_3</targetReference>
+            </connector>
+            <label>Variable is 11</label>
+        </rules>
+        <rules>
+            <name>Variable_is_negative</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Bingo</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <numberValue>0.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assignment_4</targetReference>
+            </connector>
+            <label>Variable is negative</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <interviewLabel>Target Testre {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Target Tester</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>320</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Assign_Variable</targetReference>
+        </connector>
+        <object>Account</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Draft</status>
+    <variables>
+        <name>Bingo</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>2</scale>
+    </variables>
+    <variables>
+        <name>Message</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
