@@ -1,0 +1,79 @@
+{
+    "name": "flowex",
+    "description": "Apex code generation based on Flow metadata",
+    "version": "0.4.27",
+    "author": "steinwinde",
+    "bin": {
+        "flowex": "./bin/run.js"
+    },
+    "bugs": "https://github.com/steinwinde/flowex/issues",
+    "dependencies": {
+        "@oclif/core": "^3",
+        "@oclif/plugin-help": "^6",
+        "@oclif/plugin-plugins": "^5",
+        "@types/xml2js": "^0.4.14",
+        "xml2js": "^0.6.2"
+    },
+    "devDependencies": {
+        "@oclif/prettier-config": "^0.2.1",
+        "@oclif/test": "^4",
+        "@types/chai": "^4",
+        "@types/mocha": "^10",
+        "@types/node": "^18",
+        "chai": "^4",
+        "eslint": "^8",
+        "eslint-config-oclif": "^5",
+        "eslint-config-oclif-typescript": "^3",
+        "eslint-config-prettier": "^9.1.0",
+        "mocha": "^10",
+        "oclif": "^4.7.3",
+        "shx": "^0.3.4",
+        "ts-node": "^10.9.2",
+        "typescript": "^5"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "files": [
+        "/bin",
+        "/dist",
+        "/oclif.manifest.json"
+    ],
+    "homepage": "https://github.com/steinwinde/flowex",
+    "keywords": [
+        "oclif",
+        "Salesforce",
+        "Apex",
+        "Flow"
+    ],
+    "license": "MIT",
+    "main": "dist/index.js",
+    "type": "module",
+    "oclif": {
+        "bin": "flowex",
+        "dirname": "flowex",
+        "commands": "./dist/commands",
+        "plugins": [
+            "@oclif/plugin-help",
+            "@oclif/plugin-plugins"
+        ],
+        "topicSeparator": " ",
+        "topics": {
+            "apex": {
+                "description": "Flow metadata to Apex code generation",
+                "hidden": false
+            }
+        }
+    },
+    "repository": "steinwinde/flowex",
+    "scripts": {
+        "build": "shx rm -rf dist && tsc -b",
+        "lint": "eslint . --ext .ts",
+        "postpack": "shx rm -f oclif.manifest.json",
+        "posttest": "npm run lint",
+        "prepack": "oclif manifest && oclif readme",
+        "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+        "version": "oclif readme && git add README.md"
+    },
+    "types": "dist/index.d.ts"
+}
