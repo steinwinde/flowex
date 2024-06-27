@@ -95,8 +95,15 @@ export class ApexFor extends ApexSection {
     }
 
     build() : string {
-        return this.getBody();
+        const body = this.getBody();
         // return super.buildWithBody(this.getBody());
+
+        const additionalBody = super.build();
+        if(body && additionalBody) {
+            return body + NL + additionalBody;
+        }
+
+        return body ?? additionalBody;
     }
 
     private getBody() : string {

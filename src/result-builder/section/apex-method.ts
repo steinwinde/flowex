@@ -39,10 +39,11 @@ export class ApexMethod extends ApexSection {
     // make all variables class fields
     private allVariablesAreClassFields = false;
 
-    constructor(name: string, nodeName: string) {
+    constructor(name: string, nodeName: string, allVariablesAreClassFields: boolean) {
         super();
         this.name = name;
         this.nodeName = nodeName;
+        this.allVariablesAreClassFields = allVariablesAreClassFields;
     }
 
     registerCallingMethod(callingMethod: ApexMethod): void {
@@ -78,8 +79,7 @@ export class ApexMethod extends ApexSection {
     }
 
     build() : string {
-        const methodBody = this.body ? NL + this.body.build() + NL : '';
-
+        const methodBody = this.body ? (NL + this.body.build() + NL) : '';
         const params = this.allVariablesAreClassFields ? new Array<string>() : this.getParams();
         const body = `private ${this.returnType} ${this.name}(${params}) {${methodBody}}`;
         // return super.buildWithBody(body);

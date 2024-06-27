@@ -12,7 +12,8 @@ export function getRecordDeletes(flowElem: FlowRecordDelete): ApexSection {
     //    e.g. "Get_Children" from the GetRecords; this is basically two choices: one for single
     //    record, the other for a list of records
     if (flowElem.inputReference) {
-        const apexVariable = new ApexVariable(flowElem.inputReference[0]);
+        const variableName = flowElem.inputReference[0];
+        const apexVariable = knowledge.builder.getMainClass().getVariable(variableName);
         return new ApexSectionLiteral(`delete ${flowElem.inputReference[0]};`).registerVariable(apexVariable);
         // return `delete ${flowElem.inputReference[0]};`;
     }

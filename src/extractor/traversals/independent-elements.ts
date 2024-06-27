@@ -1,6 +1,6 @@
 import { ApexDataType } from '../../formatters/translators/data-type-translator.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
-import {Flow,FlowChoice, FlowConstant, FlowDynamicChoiceSet, FlowNode, FlowScreen, FlowScreenField, FlowStage, FlowTextTemplate, FlowVariable} 
+import {Flow,FlowChoice, FlowConstant, FlowDynamicChoiceSet, FlowLoop, FlowNode, FlowScreen, FlowScreenField, FlowStage, FlowTextTemplate, FlowVariable} 
     from '../../types/metadata.js';
 import { Variable } from '../../types/variable.js';
 import {Knowledge} from '../index.js';
@@ -28,7 +28,6 @@ export class IndependentElementProcessor extends BasicElementProcessor {
         this.processChoices(this.f.choices);
         this.processConstants(this.f.constants);
         this.processDynamicChoiceSets(this.f.dynamicChoiceSets);
-        this.processLoops(this.f.loops);
         this.processScreens(this.f.screens);
         this.processStages(this.f.stages);
         this.processTextTemplates(this.f.textTemplates);
@@ -82,13 +81,6 @@ export class IndependentElementProcessor extends BasicElementProcessor {
                 this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType(obj).registerIsCollection();
                 // for the initialization see screens element later on
             }
-        }
-    }
-
-    private processLoops(flowNodes : FlowNode[]): void {
-        if (!flowNodes) return;
-        for (const e of flowNodes) {
-            this.prepare4Retrieval(e, 'loops');
         }
     }
 

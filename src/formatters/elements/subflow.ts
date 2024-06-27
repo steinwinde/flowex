@@ -66,7 +66,8 @@ export function getSubflow(flowElem: FlowSubflow): ApexSectionLiteral {
     const params = [...inputFields.values()].map(e => (e ?? 'null')).join(', ');
     
     const body = `${typeNameExpr}${name} = new ${nameOfClassRepresentingSubflow}(${params});${remainder}`;
-    const apexSectionLiteral = new ApexSectionLiteral(body).registerVariable(new ApexVariable(name));
+    const apexVariable = new ApexVariable(name).registerType(nameOfClassRepresentingSubflow);
+    const apexSectionLiteral = new ApexSectionLiteral(body).registerVariable(apexVariable);
     return apexSectionLiteral;
 }
 

@@ -4,6 +4,7 @@ import {getParser} from '../parsers/index.js'
 
 export const VERSION = '0.1.3';
 
+// eslint-disable-next-line max-params
 export default async function convert(pathToFlow: string, verbose: boolean, silent: boolean, 
                             noversion: boolean, globalVariables: boolean) : Promise<string> {
 

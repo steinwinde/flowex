@@ -35,7 +35,8 @@ export class CollectionProcessorVarProcessor {
                 const collectionVariable = new Variable(name, typeComplete, true);
                 this.k.var2type.set(name, collectionVariable);
                 const objWithoutList = variable.type;
-                this.k.builder.getMainClass().registerVariable(name).registerType(objWithoutList).registerIsCollection();
+                // 2024-06-27: commented, because this is now done in the dependent element processor
+                // this.k.builder.getMainClass().registerVariable(name).registerType(objWithoutList).registerIsCollection();
 
                 // the GetRecord element needs to know which fields collection processors and possibly others
                 // require for its SELECT statement

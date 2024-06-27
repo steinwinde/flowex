@@ -2,7 +2,7 @@ import {Knowledge} from '../index.js';
 import {ApexDataType} from '../../formatters/translators/data-type-translator.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
 import {Flow, FlowAssignment, FlowAssignmentItem, FlowCollectionProcessor, FlowCustomError, FlowDecision, FlowElementReferenceOrValue, 
-    FlowFormula, FlowInputFieldAssignment, FlowNode, FlowRecordCreate, FlowRecordLookup, FlowStart, FlowSubflow} 
+    FlowFormula, FlowInputFieldAssignment, FlowLoop, FlowNode, FlowRecordCreate, FlowRecordLookup, FlowStart, FlowSubflow} 
     from '../../types/metadata.js';
 import {MyFlowElementReferenceOrValue} from '../../types/metadata-simple.js';
 import * as utils from '../utils.js';
@@ -29,10 +29,14 @@ export class DependentElementProcessor extends BasicElementProcessor {
         this.processSimpleElements(this.f.recordDeletes, 'recordDeletes');
         this.processSimpleElements(this.f.recordUpdates, 'recordUpdates');
         this.processActionCalls(this.f.actionCalls);
-        this.processCollectionProcessors(this.f.collectionProcessors);
         this.processFormulas(this.f.formulas);
         this.processRecordCreates(this.f.recordCreates);
         this.processRecordLookups(this.f.recordLookups);
+        // moved this down from before processFormulas to see, if this facilitates determining the filter variables
+        this.processCollectionProcessors(this.f.collectionProcessors);
+        // moved this here from IndependentElementProcessor (where is was before processScreens) to see, if this 
+        // facilitates determining the iteration variables
+        this.processLoops(this.f.loops);
         this.processSubflows(this.f.subflows);
         this.processCustomErrors(this.f.customErrors);
     }
@@ -94,6 +98,14 @@ export class DependentElementProcessor extends BasicElementProcessor {
         if (!flowNodes) return;
         for (const e of flowNodes) {
             this.prepare4Retrieval(e, 'collectionProcessors');
+
+            const variableName = e.collectionReference[0];
+            const primaryVariable = this.knowledge.builder.getMainClass().getVariable(variableName);
+            const variableType = primaryVariable.getApexType();
+            const apexVariable = this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType(variableType);
+            if(primaryVariable.isCollectionVariable()) {
+                apexVariable.registerIsCollection();
+            }
         }
     }
 
@@ -224,6 +236,17 @@ export class DependentElementProcessor extends BasicElementProcessor {
                     addFlowElementReferenceOrValue2Object2FieldsMap(ferov, this.knowledge.objects2Fields, this.knowledge.var2type);
                 }
             }
+        }
+    }
+
+    private processLoops(flowLoops : FlowLoop[]): void {
+        if (!flowLoops) return;
+        for (const e of flowLoops) {
+            this.prepare4Retrieval(e, 'loops');
+            // TODO: 2024-06-27: Newly added, does this always work?
+            const variableName = e.collectionReference[0];
+            const variableType = this.knowledge.builder.getMainClass().getVariable(variableName).getApexType();
+            this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType(variableType).registerLocal();
         }
     }
 

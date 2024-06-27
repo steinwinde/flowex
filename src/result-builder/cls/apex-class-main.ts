@@ -91,7 +91,7 @@ export class ApexMainClass extends ApexClass {
         const beautifiedName = camelize(preliminaryName, false);
         const existingNames : Set<string> = new Set<string>(this.methods.keys());
         const name : string = getUniqueName(beautifiedName, existingNames);
-        const apexMethod = new ApexMethod(name, flowElementName);
+        const apexMethod = new ApexMethod(name, flowElementName, this.globalVariables);
         this.methods.set(name, apexMethod);
         return apexMethod;
     }

@@ -121,6 +121,7 @@ export class ElementProcessor {
         const apexSection = new ApexSectionLiteral(a.body);
         for(const param of a.methodParameters) {
             const apexVariable = new ApexVariable(param.name);
+            apexVariable.registerType(param.type!);
             apexSection.registerVariable(apexVariable);
         }
 

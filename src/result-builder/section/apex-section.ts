@@ -47,17 +47,20 @@ export class ApexSection {
         return this;
     }
 
-    protected buildWithBody(body: string): string {
-        const part = this.build();
-        if(part.length > 0 && body) {
-            return body + NL + part;
-        }
+    // protected buildWithBody(body: string): string {
+    //     const part = this.build();
+    //     if(part.length > 0 && body) {
+    //         return body + NL + part;
+    //     }
 
-        return body ?? part;
-    }
+    //     return body ?? part;
+    // }
 
     build(): string {
+        return this.buildSections();
+    }
 
+    private buildSections(): string {
         const sections : Array<string> = this.sections.map(section => {
             if (typeof section !== 'string') {
                 // executes the build method of the section or the extension build
@@ -70,7 +73,20 @@ export class ApexSection {
         return sections.join(NL);
     }
 
+    // fully-fledged variables only (i.e. with type); e.g. in case of Apex methods there 
+    // have to be variables that are necessarily method local - and they might come from
+    // apexSectionLiterals; we can't declare them globally first; therefore some of the 
+    // provided variables would have to be fully-fledged anyway; sections and its derivatives
+    // are kept free from Knowledge, MainClass variable awareness etc.
     protected addVariable(apexVariable: ApexVariable, use: VariableUse): boolean {
+        // TODO: For testing purposes only
+        if(!apexVariable.hasApexType()) {
+            // Whereas on class level registered variables must be comprehensively declared (e.g. with a type),
+            // on section level variables must be referred to by their name only, like shells. Their
+            // true identity is retrieved later.
+            throw new Error('Apex type missing of variable: ' + apexVariable.getName());
+        }
+
         const priorUse = this.apexVariables.get(apexVariable.getName());
         // Write overwrites Read
         if(priorUse === undefined || use === VariableUse.Write) {

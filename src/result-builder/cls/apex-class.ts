@@ -150,7 +150,9 @@ export abstract class ApexClass {
     protected setFields4ClassHead(): void {
         const fields: string[] = [];
         for(const variable of this.variables) {
-            fields.push(variable.buildDeclarationForClassHead());
+            if(!variable.isLocalVariable()) {
+                fields.push(variable.buildDeclarationForClassHead());
+            }
         }
         
         this.fields4ClassHead = fields.join(';' + NL);

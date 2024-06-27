@@ -9,11 +9,15 @@ export default class Apex extends Command {
     }
 
     static flags = {
-        globalVariables: Flags.boolean({char: 'g', default: false, description: 'Make all variables class fields, i.e. keep them global like in the Flow', required: false}),
+        globalVariables: Flags.boolean({char: 'g', default: true, 
+            description: 'Make all variables class fields, i.e. keep them global like during Flow execution', required: false}),
         // noversion is default in test runs
-        noversion: Flags.boolean({char: 'n', default: false, description: 'Do not include version information in output', required: false}),
-        silent: Flags.boolean({char: 's', default: false, description: 'Be silent. Do not write to standard output', required: false}),
-        verbose: Flags.boolean({char: 'v', default: true, description: 'Verbose debug output', required: false})
+        noversion: Flags.boolean({char: 'n', default: false, 
+            description: 'Do not include version information in output', required: false}),
+        silent: Flags.boolean({char: 's', default: false, 
+            description: 'Be silent. Do not write to standard output', required: false}),
+        verbose: Flags.boolean({char: 'v', default: true, 
+            description: 'Verbose debug output', required: false})
     }
 
     async run(): Promise<string> {

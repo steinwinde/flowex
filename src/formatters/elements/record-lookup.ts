@@ -45,7 +45,8 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
     const ref: string | undefined = flowElem.outputReference ? flowElem.outputReference[0] : undefined;
 
     const firstRecordOnly = getFirstRecordOnly(flowElem, knowledge.var2type, ref);
-    const [soqlStatement, soqlWhereApexVariables] = getSoqlStatement(flowElem, obj, firstRecordOnly);
+    const [soqlStatement, soqlWhereApexVariablesByName] = getSoqlStatement(flowElem, obj, firstRecordOnly);
+    const soqlWhereApexVariables = soqlWhereApexVariablesByName.map(e => knowledge.builder.getMainClass().getVariable(e.getName()));
 
     const name: string = flowElem.name[0];
 
@@ -63,7 +64,7 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
 //             const m = `return ${soqlStatement} ?? null;
 // `;
             apexMethod.registerBody(apexSection);
-            const apexVariable = new ApexVariable(name);
+            const apexVariable = knowledge.builder.getMainClass().getVariable(name)
             const apexLeftHand = new ApexLeftHand(name, [apexVariable]);
             // TODO: Maybe nicer to have ApexSection as the second parameter as a possibility
             const apexAssignment = new ApexAssignment(apexLeftHand, `${methodName}()`);

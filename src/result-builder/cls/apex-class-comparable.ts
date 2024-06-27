@@ -32,11 +32,11 @@ export class ApexComparableClass extends ApexClass {
         return this;
     }
 
-    getMethod(ref: string, limit?: number[]) : ApexSection {
+    getMethod(ref: string, apexType: string, limit?: number[]) : ApexSection {
         let secondFor : ApexFor | undefined;
-        const apexVariableWrapperList = new ApexVariable('wrapperList');
-        const apexVariableRef = new ApexVariable(ref);
-        const apexVariableItem = new ApexVariable('item');
+        const apexVariableWrapperList = new ApexVariable('wrapperList').registerType(apexType).registerIsCollection();
+        const apexVariableRef = new ApexVariable(ref).registerType(apexType);
+        const apexVariableItem = new ApexVariable('item').registerType(apexType);
         if(limit) {
             if (limit[0] > 0) {
                 const body = `${ref}.add(wrapperList[i].${this.v});`;
@@ -83,9 +83,10 @@ export class ApexComparableClass extends ApexClass {
         // const ifBodyString = `result = ${this.ind[0]};`
         // TODO: Do I miss variables here?
         const ifCondition = new ApexIfCondition().setString(this.comp[0], []);
-        const apexLeftHand = new ApexLeftHand(VAR_RESULT, [new ApexVariable(VAR_RESULT)]);
-        const apexRightHand = new ApexRightHand(this.ind[0], [new ApexVariable(this.ind[0])]);
-        const ifBody = new ApexAssignment(apexLeftHand, apexRightHand);
+        const apexVariable = new ApexVariable(VAR_RESULT).registerType(this.objName);
+        const apexLeftHand = new ApexLeftHand(VAR_RESULT, [apexVariable]);
+        // const apexRightHand = new ApexRightHand(this.ind[0], [new ApexVariable(this.ind[0])]);
+        const ifBody = new ApexAssignment(apexLeftHand, '1');
         const ifStatement = apexIf().if(ifCondition, ifBody);
         for (let i = 2; i < this.comp.length; i++) {
             // should the "ind[0]" not be "ind[i]"?

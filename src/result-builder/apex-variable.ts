@@ -29,6 +29,8 @@ export class ApexVariable {
     private isConstant = false;
     // constructor variable due to initialization in constructor
     private isInitializedInConstructor = false;
+    // do never make this variable a class field; e.g. this could be a loop variable
+    private isLocal = false;
 
     private name: string;
     private comment: string | undefined;
@@ -50,6 +52,11 @@ export class ApexVariable {
     // in case of Flow Stages (and other rather internal variables?), this method is useful
     registerConstant(): ApexVariable {
         this.isConstant = true;
+        return this;
+    }
+
+    registerLocal(): ApexVariable {
+        this.isLocal = true;
         return this;
     }
 
@@ -146,12 +153,21 @@ export class ApexVariable {
         return this.isInitializedInConstructor;
     }
 
+    isLocalVariable() : boolean {
+        return this.isLocal;
+    }
+
     getApexType(): string {
         if(this.apexType === undefined) {
             throw new Error('Apex type not set of variable: ' + this.name);
         }
         
         return this.apexType;
+    }
+
+    // TODO: For debugging purposes only
+    hasApexType(): boolean {
+        return this.apexType !== undefined;
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -225,10 +241,9 @@ export class ApexVariable {
     }
 }
 
-// TODO: This returns an existing variable, but this is not clear from the signature
 export function apexVariableFromResourceName(resourceName: string): ApexVariable {
-    // TODO: for now variable names keep their original names
-    const apexVariable = knowledge.builder.getMainClass().getVariables().find(variable => variable.getName() === resourceName);
+    // const apexVariable = knowledge.builder.getMainClass().getVariables().find(variable => variable.getName() === resourceName);
+    const apexVariable = knowledge.builder.getMainClass().getVariable(resourceName);
     assertApexVariableDefined(apexVariable);
 
     return apexVariable;

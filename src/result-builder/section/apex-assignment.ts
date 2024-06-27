@@ -24,7 +24,13 @@ export class ApexAssignment extends ApexSection {
     }
 
     build() : string {
-        return this.getBody();
+        const body = this.getBody();
+        const additionalBody = super.build();
+        if(body && additionalBody) {
+            return body + NL + additionalBody;
+        }
+
+        return body ?? additionalBody;
     }
 
     private getBody(): string {

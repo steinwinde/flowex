@@ -60,7 +60,7 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
 
     const vars = flowElem.inputAssignments ? translateAssignments4Create(flowElem.inputAssignments) : '';
     const variable: string = flowElem.name[0];
-    const apexVariable = new ApexVariable(variable);
+    const apexVariable = knowledge.builder.getMainClass().getVariable(variable);
     let additionalAssignment : ApexAssignment | undefined;
     if (assignRecordIdToReference) {
         const apexRightHand = new ApexRightHand(`${variable}.Id`, [apexVariable]);

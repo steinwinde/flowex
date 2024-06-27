@@ -15,8 +15,10 @@ export function getFiltered(flowElem: FlowCollectionProcessor, variableInfo: Var
 
     const apexFor = new ApexFor().item(variableInfo.type).itemInstance(v).items(ref);
 
-    const apexVariableName = new ApexVariable(name);
-    const apexVariableV = new ApexVariable(v);
+    // const apexVariableName = new ApexVariable(name);
+    // const apexVariableV = new ApexVariable(v);
+    const apexVariableName = knowledge.builder.getMainClass().getVariable(name);
+    const apexVariableV = knowledge.builder.getMainClass().getVariable(v);
     const apexIfBody = new ApexSectionLiteral(`${name}.add(${v});`).registerVariables([apexVariableName, apexVariableV]);
 
     if (flowElem.conditionLogic[0] === 'formula_evaluates_to_true') {

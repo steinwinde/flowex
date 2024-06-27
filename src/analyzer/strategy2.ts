@@ -109,7 +109,7 @@ export class SharedUse {
                 } else {
                     // if the variable is assigned in the method, the method must return it and methods above must
                     // return it too up to its definition
-                    const callingMethods = method.callingMethods
+                    // const callingMethods = method.callingMethods
                     variableInfo.d = false;
                     method.parameterVars.push(variableInfo.v);
                 }
