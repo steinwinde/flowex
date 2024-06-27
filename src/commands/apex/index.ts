@@ -4,12 +4,6 @@ import convert from '../../main/index.js'
  
 export default class Apex extends Command {
 
-    // TODO: 2024-05-11: Whish list:
-    // - Command line parameter to make output variable names more like typical
-    //   Java variableNames (starting with lower case letter, but maybe also remove underscores). At least when removing underscores,
-    //   this necessitates a mapping of original names to new names, because uniqueness is only guaranteed before applying this change. But
-    //   this mapping would only get relevant in the moment output is generated.
-
     static args = {
         pathToFlow: Args.string({description: 'Path to *.flow-meta.xml, the relevant Flow file', required: true}),
     }

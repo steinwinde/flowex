@@ -9,7 +9,9 @@ FlowEx is designed to become a [sf](https://developer.salesforce.com/docs/atlas.
 
 Here's a quick way to run and test source code modifications with a suitable Flow definition (example based on a Windows prompt):
 
-> [project directory].\bin\dev apex .\Order_Alignment.flow-meta.xml
+```sh-session
+[project directory].\bin\dev apex .\Order_Alignment.flow-meta.xml
+```
 
 This does not require to transpile explicitly.
 
@@ -24,21 +26,21 @@ FlowEx is based on [oclif](https://oclif.io/). The entry point can be found [her
 
 From there, the tool proceeds roughly according to the following steps:
 
-- I parses the Flow definition. This is somewhat based on a recent version of [Salesforce's Metadata WSDL](src/types/metadata.xml) (download from your Salesforce org via Setup - Integrations - API). It utilizes [xml2js](https://www.npmjs.com/package/xml2js) to generate a memory representation of the Flow.
+- It parses the Flow definition. This is somewhat based on a recent version of [Salesforce's Metadata WSDL](src/types/metadata.xml) (download from your Salesforce org via Setup - Integrations - API). It utilizes [xml2js](https://www.npmjs.com/package/xml2js) to generate a memory representation of the Flow.
 
-- It then extract relevant information by looking at Flow elements one-by-one, in several cycles. As everything else in this project, the design here doesn't aim at efficiency and briefness, but at testability and readability.
+- It then extracts relevant information by looking at Flow elements one-by-one, in several cycles. As everything else in this project, the design here doesn't aim at efficiency and briefness, but at testability and readability.
 
 - A first internal representation of the Apex is generated.
 
-- If variables are not all global (like in the Flow, see "globalVariables"), the future place of variables, parameters and return values is calculated.
+- If variables are not all global (like in a Flow execution context in Salesforce, see "globalVariables"), the future place of variables, parameters and return values is calculated.
 
-- The literal Apex strings are compiled and output.
+- The literal Apex strings are compiled and send to the output.
 
 
 ## Run FlowEx
 
 Here's what a stand-alone use of FlowEx would look like.
-
+```
 USAGE
   $ flowex apex FLOW [--globalVariables] [--noversion] [--silent] [--verbose]
 
@@ -56,7 +58,7 @@ DESCRIPTION
 
 EXAMPLES
   $ flowex apex Order_Alignment.flow-meta.xml
-
+```
 
 ## Limitations
 
