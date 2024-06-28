@@ -1,7 +1,6 @@
 import {FlowElementReferenceOrValue} from '../../types/metadata.js';
 import {MyFlowElementReferenceOrValue} from '../../types/metadata-simple.js';
 import {esc} from '../../utils.js';
-// import {Variable} from '../../types/variable';
 import {ApexReference} from '../../result-builder/section/apex-reference.js';
 
 export function getFlowElementReferenceOrValue(val: FlowElementReferenceOrValue, whereContext: boolean):
@@ -11,9 +10,12 @@ export function getFlowElementReferenceOrValue(val: FlowElementReferenceOrValue,
     // will be elementReference whatever data type is chosen
     if (val.elementReference) {
         const apexReference = new ApexReference().set(val.elementReference[0]!);
+        // TODO: This should not be built here, but inside the ApexSection that uses it
         const variable : string = apexReference.build();
         // TODO: variable can be "null", for instance; this must be translated to a valid name in Apex
-        return {t: 'elementReference', v: prefix + variable};
+        // TODO: This can be a variable, but it can also be an expression like "[SELECT Id FROM Organization]",
+        // which is not considered by all the code that called this method
+        return {r: apexReference, t: 'elementReference', v: prefix + variable};
     }
 
     if (val.stringValue) { // ok

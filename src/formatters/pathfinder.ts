@@ -110,7 +110,14 @@ export class PathFinder {
         }
         
         if (flowType === 'loops') {
-            const targets : Targets | undefined = knowledge.name2node.get(currentNodeName)?.targets;
+
+            const currentNode = knowledge.name2node.get(currentNodeName);
+            const flowLoop = currentNode!.flowElement as FlowLoop;
+            const variableName = flowLoop.collectionReference[0];
+            const variableType = knowledge.builder.getMainClass().getVariable(variableName).getApexType();
+            knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(flowLoop).registerType(variableType).registerLocal(apexMethod);
+
+            const targets : Targets | undefined = currentNode?.targets;
             const apexSection = new ApexSection();
             if (targets && targets.hasTarget()) {
                 // render loop
@@ -118,8 +125,6 @@ export class PathFinder {
                     // codeSoFar += this.getLoopStart(currentNodeName);
                     const apexFor = this.getApexFor(currentNodeName);
 
-                    // FIXME: if a method is called inside the loop, currently the method has no
-                    // access to the loop variable; the variable must be passed into the method
                     const body = this.processWithMethodOption(targets.getPrimary(), apexMethod);
                     apexFor.set(body);
                     apexSection.addSection(apexFor);

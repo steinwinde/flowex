@@ -2,6 +2,8 @@ import { ApexSection } from './apex-section.js';
 import { VAR_RECORD } from '../apex-variable.js';
 import { soql } from '../soql/soql-query.js';
 
+// TODO: This should hold a variable and the build method should be called in the context of parent section builds
+// or why is this an ApexSection?
 export class ApexReference extends ApexSection {
 
     private reference: string = '';
@@ -13,8 +15,11 @@ export class ApexReference extends ApexSection {
         return this;
     }
 
+    // TODO: Is this always correct? Is there no better way?
     isField(): boolean {
-        return !this.reference.startsWith('$') && this.reference.includes('.');
+        return  !this.reference.startsWith('$') 
+            && !this.reference.endsWith(']') 
+            && this.reference.includes('.');
     }
 
     getFirstPart(): string {

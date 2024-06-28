@@ -154,8 +154,13 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
 
 function getAdd(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElementReferenceOrValue, var2type: Map<string, Variable>) : ApexSection {
     const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromLeftHand(leftHand.v));
+    const apexVariables = [apexVariableLeftHand];
     if (leftHand.t.startsWith('List<') || leftHand.t === 'Picklist' || leftHand.t === 'Stage') {
-        const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
+        if(rightHand.t === 'elementReference') {
+            const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
+            apexVariables.push(apexVariableRightHand);
+        }
+        
         let body = '';
         // TODO: not sure, if this makes sense for stages and picklists
         if (var2type.get(rightHand.v)?.isCollection) {
@@ -163,7 +168,7 @@ function getAdd(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElemen
         }
 
         body = `${leftHand.v}.add(${rightHand.v});`;
-        return new ApexSectionLiteral(body).registerVariables([apexVariableLeftHand, apexVariableRightHand]);
+        return new ApexSectionLiteral(body).registerVariables(apexVariables);
     }
 
     if (rightHand.t === 'Multipicklist') {
@@ -178,9 +183,13 @@ function getAdd(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElemen
         return new ApexSectionLiteral(`${leftHand.v}.addDays(${i});`).registerVariable(apexVariableLeftHand);
     }
 
-    const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
+    if(rightHand.t === 'elementReference') {
+        const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
+        apexVariables.push(apexVariableRightHand);
+    }
+    
     const body = `${leftHand.v} += ${rightHand.v};`;
-    return new ApexSectionLiteral(body).registerVariables([apexVariableLeftHand, apexVariableRightHand]);
+    return new ApexSectionLiteral(body).registerVariables(apexVariables);
 }
 
 function getSubtract(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElementReferenceOrValue) : ApexSection {
@@ -260,8 +269,13 @@ function getCondition(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlow
     }
 
     const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromLeftHand(leftHand.v));
-    const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
-    const condition = apexIfConditionFromString(body, [apexVariableLeftHand, apexVariableRightHand]);
+    const apexVariables = [apexVariableLeftHand];
+    if(rightHand.t === 'elementReference') {
+        const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
+        apexVariables.push(apexVariableRightHand);
+    }
+
+    const condition = apexIfConditionFromString(body, apexVariables);
     return condition;
 }
 

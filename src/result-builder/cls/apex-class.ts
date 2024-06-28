@@ -81,8 +81,8 @@ export abstract class ApexClass {
     // - "Stages" for the List<String> to model Flow stages
     // - "ActiveStages" for the List<String> to model active Flow stages
     // - "CurrentStage" for the String to model the current Flow stage
+    // - Variables set by the application to hold results temporarily, e.g. "l" in record lookups
     // - Maybe loop variables like i, j
-    // We ignore this problem until implementing the option to force names to follow Java naming conventions (camel case)
     registerVariable(name: string): ApexVariable {
         this.checkUnique(name);
 
@@ -93,8 +93,8 @@ export abstract class ApexClass {
 
     // TODO: This is verifying the correctness of the code, not of the input data or anything else
     protected checkUnique(name: string) {
-        const existingVariableNames = new Set<string>(this.variables.map(v => v.getName()));
-        if (existingVariableNames.has(name)) {
+        const existingVariable = this.variables.find((v) => v.getName() === name);
+        if (existingVariable && !existingVariable.isLocalVariable()) {
             throw new Error(`Variable ${name} already exists`);
         }
     }

@@ -244,10 +244,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
         if (!flowLoops) return;
         for (const e of flowLoops) {
             this.prepare4Retrieval(e, 'loops');
-            // TODO: 2024-06-27: Newly added, does this always work?
-            const variableName = e.collectionReference[0];
-            const variableType = this.knowledge.builder.getMainClass().getVariable(variableName).getApexType();
-            this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType(variableType).registerLocal();
+            // we can't register variables here, because they are local and would not know their method
         }
     }
 

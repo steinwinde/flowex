@@ -38,7 +38,8 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
 
         const apexSectionLiteral = new ApexSectionLiteral(`insert ${inputReference};`);
         if(inputReference !== VAR_RECORD) {
-            apexSectionLiteral.registerVariable(new ApexVariable(inputReference));
+            const apexVariable = knowledge.builder.getMainClass().getVariable(inputReference);
+            apexSectionLiteral.registerVariable(apexVariable);
         }
 
         return apexSectionLiteral;

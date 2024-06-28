@@ -74,12 +74,15 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
         
         if (flowElem.outputReference !== undefined) {
             // option 3
+            const currentMethod = knowledge.builder.getMainClass().getLastMethod();
+            const apexVariable = knowledge.builder.getMainClass().registerVariable('l')
+                .registerType(obj).registerIsCollection().registerLocal(currentMethod);
+            
             let ass = translateAssignments4LookupRef(flowElem.queriedFields!, ref!, 'l[0]');
             const assignmentsSection = new ApexSection().addSections(ass);
             const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, 
                     METHOD_PREFIXES.METHOD_PREFIX_POPULATE, obj);
-            const apexVariable = new ApexVariable('l').registerType(obj).registerIsCollection();
-            const leftHand = new ApexLeftHand(`List<${obj} l`, [apexVariable]);
+            const leftHand = new ApexLeftHand(`List<${obj}> l`, [apexVariable]);
             const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
             const apexAssignment = new ApexAssignment(leftHand, rightHand);
             const apexIfCondition = apexIfConditionFromString('l.size()!=0', [apexVariable]);
@@ -96,14 +99,18 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
         }
 
         if (flowElem.outputAssignments !== undefined) {
+
+            const currentMethod = knowledge.builder.getMainClass().getLastMethod();
+            const apexVariable = knowledge.builder.getMainClass().registerVariable('l')
+                .registerType(obj).registerIsCollection().registerLocal(currentMethod);
+
             let ass = translateAssignments4LookupAss(flowElem.outputAssignments!, 'l[0]', false);
             const assignmentsSection = new ApexSection().addSections(ass);
             // option 4
             const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, 
                     METHOD_PREFIXES.METHOD_PREFIX_POPULATE, obj);
 
-            const apexVariable = new ApexVariable('l').registerType(obj).registerIsCollection();
-            const leftHand = new ApexLeftHand(`List<${obj} l`, [apexVariable]);
+            const leftHand = new ApexLeftHand(`List<${obj}> l`, [apexVariable]);
             const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
             const apexAssignment = new ApexAssignment(leftHand, rightHand);
             const apexIfCondition = apexIfConditionFromString('l.size()!=0', [apexVariable]);

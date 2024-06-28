@@ -1,3 +1,5 @@
+import Apex from '../commands/apex/index.js';
+import { ApexReference } from '../result-builder/section/apex-reference.js';
 import * as md from './metadata.js';
 
 // some short cuts for metadata types/interfaces
@@ -22,7 +24,8 @@ export interface MyFlowNodeWithFault extends
     md.FlowRecordUpdate,
     md.FlowRecordDelete {}
 
-export interface MyFlowElementReferenceOrValue {
-    t: string // (which) type
-    v: string, // value
+export type MyFlowElementReferenceOrValue = {
+    r?: ApexReference; // set, if type==='elementReference'
+    t: string; // (which) type
+    v: string; // value
 }

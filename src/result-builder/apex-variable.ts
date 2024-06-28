@@ -1,4 +1,5 @@
 import { FlowElement } from "../types/metadata.js";
+import { ApexMethod } from "./section/apex-method.js";
 import { SoqlQuery } from "./soql/soql-query.js";
 
 // Names of variables of potentially global importance, created by Flowex
@@ -29,8 +30,8 @@ export class ApexVariable {
     private isConstant = false;
     // constructor variable due to initialization in constructor
     private isInitializedInConstructor = false;
-    // do never make this variable a class field; e.g. this could be a loop variable
-    private isLocal = false;
+    // do never make a variable a class field, if it targets a method; e.g. this could be a loop variable
+    private targetedMethod: ApexMethod | undefined;
 
     private name: string;
     private comment: string | undefined;
@@ -55,8 +56,10 @@ export class ApexVariable {
         return this;
     }
 
-    registerLocal(): ApexVariable {
-        this.isLocal = true;
+    registerLocal(apexMethod : ApexMethod | null | undefined): ApexVariable {
+        // TODO: We really should only use undefined (if at all)
+        if(apexMethod === null) return this;
+        this.targetedMethod = apexMethod;
         return this;
     }
 
@@ -154,7 +157,7 @@ export class ApexVariable {
     }
 
     isLocalVariable() : boolean {
-        return this.isLocal;
+        return this.targetedMethod !== undefined;
     }
 
     getApexType(): string {
