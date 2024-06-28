@@ -45,9 +45,10 @@ export class DependentElementProcessor extends BasicElementProcessor {
         if (!flowNodes) return;
         for (const e of flowNodes) {
             const name: string = this.prepare4Retrieval(e, 'actionCalls');
+            // Everything else is left to pathfinder/element-processor.ts
             // any FlowActionCall must be marked as "must be method"
             // this.knowledge.target2makeMethod.set(name, true);
-            this.knowledge.requiredMethods.add(name);
+            // this.knowledge.requiredMethods.add(name);
         }
     }
 

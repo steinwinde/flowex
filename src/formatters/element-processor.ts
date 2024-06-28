@@ -1,7 +1,7 @@
 import {FlowActionCall, FlowAssignment, FlowCollectionProcessor, FlowCustomError, FlowElement, FlowRecordCreate, FlowRecordDelete, FlowRecordLookup, 
     FlowRecordUpdate, FlowScreen, FlowSubflow, FlowWait} from '../types/metadata.js';
 import {MyFlowNodeWithFault} from '../types/metadata-simple.js';
-import getAction, {Action} from './actions/action-builder.js';
+import getAction from './actions/action-builder.js';
 import {getAssignments} from './elements/assignments.js';
 import {getRecordCreates} from './elements/record-create.js';
 import {getRecordDeletes} from './elements/record-delete.js';
@@ -21,6 +21,7 @@ import { ApexTry } from '../result-builder/section/apex-try.js';
 import { ApexComment } from '../result-builder/section/apex-comment.js';
 import { ApexSectionLiteral } from '../result-builder/section/apex-section-literal.js';
 import { ApexVariable } from '../result-builder/apex-variable.js';
+import { camelize } from '../utils.js';
 
 export class ElementProcessor {
     // private methodParameters: Map<string, Parameter[]>;
@@ -112,20 +113,38 @@ export class ElementProcessor {
         return mainPart;
     }
 
-    // eslint-disable-next-line perfectionist/sort-classes
-    private getActionCalls(flowElem: FlowActionCall) : ApexSection {
-        const a: Action = getAction(flowElem);
-        const name: string = flowElem.name[0];
-        this.pf.methodParameters.set(name, a.methodParameters);
-        // TODO: This is a bit of a hack; the concept of methodParameters is to be removed
-        const apexSection = new ApexSectionLiteral(a.body);
-        for(const param of a.methodParameters) {
-            const apexVariable = new ApexVariable(param.name);
-            apexVariable.registerType(param.type!);
-            apexSection.registerVariable(apexVariable);
+    private getActionCalls(flowActionCall: FlowActionCall) : ApexSection {
+
+        const apexMethod = knowledge.builder.getMainClass().registerMethod(flowActionCall);
+
+        const action = getAction(flowActionCall);
+        apexMethod.registerBody(new ApexSectionLiteral(action.getBody()));
+        
+        const args : Array<string> = new Array<string>();
+        for(const param of flowActionCall.inputParameters) {
+            if(param.value[0].elementReference !== undefined) {
+                // The key used in the Flow definition
+                const parameterName = param.name[0];
+                // TODO: The value in the Flow definition can probably be a literal
+                const value = param.value[0].elementReference[0];
+                const beautifiedName: string = camelize(value.replace('.', ''), false);
+                const apexVariable = new ApexVariable(beautifiedName);
+                const apexType = action.getParameterTypes().get(parameterName);
+                if(apexType === undefined) {
+                    throw new Error('No type found for parameter: ' + parameterName 
+                        + ' of action: ' + flowActionCall.actionName[0]);
+                }
+
+                apexVariable.registerType(apexType);
+                apexMethod.registerParameter(apexVariable);
+
+                args.push(value);
+            }
         }
 
-        return apexSection;
+        // TODO: are there never any output parameters? method returns?
+
+        return new ApexSectionLiteral(apexMethod.buildCall(args.join(', ')));
     }
 
     private getCollectionProcessor(flowElem: FlowCollectionProcessor): ApexSection | undefined {

@@ -1,16 +1,11 @@
 import {FlowActionCall, FlowActionCallInputParameter} from '../../types/metadata.js';
-import {Parameter} from '../../types/parameter.js';
 import {getFlowElementReferenceOrValue} from '../translators/reference-or-value-translator.js';
+import { BasicAction } from './basic-action.js';
 import EmailAlert from './email-alert.js';
 import EmailSimple from './email-simple.js';
-import QuickAction from './quick-action.js';
+import UnsupportedAction from './unsupported.js';
 
-export interface Action {
-    body: string;
-    methodParameters: Parameter[];
-}
-
-export default function getAction(flowElem: FlowActionCall) : Action {
+export default function getAction(flowElem: FlowActionCall) : BasicAction {
     const name: string = flowElem.name[0];
     const actionName: string = flowElem.actionName[0];
     const inputParams: Map<string, string> = mapInputParameters(flowElem.inputParameters);
@@ -22,16 +17,14 @@ export default function getAction(flowElem: FlowActionCall) : Action {
 
     case 'emailSimple': {
         return new EmailSimple(actionName, inputParams);
-        break;
     }
 
     case 'quickAction': {
-        return new QuickAction(actionName, inputParams);
-        break;
+        return new UnsupportedAction(actionName);
     }
 
     default: {
-        return new QuickAction(actionName, inputParams);
+        return new UnsupportedAction(actionName);
     }
     }
 }

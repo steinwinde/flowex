@@ -19,9 +19,9 @@ export enum VariableUse {Read, Write}
  */
 export class ApexSection {
 
-    // records all variables needed by this section, e.g. by the method or an if-condition; map is 
-    // based on the variable name
-    private apexVariables = new Map<string, ApexVariableInfo>();
+    // records all variables needed by this section, e.g. by the method or an if-condition;
+    // key is variable name
+    private apexVariableInfos = new Map<string, ApexVariableInfo>();
 
     // Extending classes can add sections via the method, even strings
     private sections = new Array<ApexSection | string>();
@@ -87,11 +87,11 @@ export class ApexSection {
             throw new Error('Apex type missing of variable: ' + apexVariable.getName());
         }
 
-        const priorUse = this.apexVariables.get(apexVariable.getName());
+        const priorUse = this.apexVariableInfos.get(apexVariable.getName());
         // Write overwrites Read
         if(priorUse === undefined || use === VariableUse.Write) {
             const apexVariableInfo = new ApexVariableInfo(apexVariable, use);
-            this.apexVariables.set(apexVariable.getName(), apexVariableInfo);
+            this.apexVariableInfos.set(apexVariable.getName(), apexVariableInfo);
             return true;
         }
 
@@ -99,10 +99,10 @@ export class ApexSection {
     }
 
     protected addVariableInfo(apexVariableInfo: ApexVariableInfo): boolean {
-        const priorUse = this.apexVariables.get(apexVariableInfo.getApexVariable().getName());
+        const priorUse = this.apexVariableInfos.get(apexVariableInfo.getApexVariable().getName());
         // Write overwrites Read
         if(priorUse === undefined || apexVariableInfo.getUse() === VariableUse.Write) {
-            this.apexVariables.set(apexVariableInfo.getApexVariable().getName(), apexVariableInfo);
+            this.apexVariableInfos.set(apexVariableInfo.getApexVariable().getName(), apexVariableInfo);
             return true;
         }
 
@@ -115,11 +115,11 @@ export class ApexSection {
         }
     }
 
-    // protected addVariables(apexVariables: Array<ApexVariable>): void {
-    //     for(const apexVariable of apexVariables) {
-    //         const found = this.apexVariables.find((variable) => variable.getName() === apexVariable.getName());
+    // protected addVariables(apexVariableInfos: Array<ApexVariable>): void {
+    //     for(const apexVariable of apexVariableInfos) {
+    //         const found = this.apexVariableInfos.find((variable) => variable.getName() === apexVariable.getName());
     //         if(!found) {
-    //             this.apexVariables.push(apexVariable);
+    //             this.apexVariableInfos.push(apexVariable);
     //         }
     //     }
     // }
@@ -135,10 +135,10 @@ export class ApexSection {
             }
         }
 
-        return this.apexVariables;
+        return this.apexVariableInfos;
     }
 
     protected getVariableInfos(): Map<string, ApexVariableInfo> {
-        return this.apexVariables;
+        return this.apexVariableInfos;
     }
 }

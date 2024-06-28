@@ -1,5 +1,5 @@
 import { Variable } from '../../types/variable.js';
-import { ApexSection } from './apex-section.js';
+import { ApexSection, VariableUse } from './apex-section.js';
 import { ApexVariableInfo } from "../apex-variable-info.js";
 import { ApexVariable } from '../apex-variable.js';
 
@@ -27,7 +27,7 @@ export class ApexMethod extends ApexSection {
 
     // final name of the method; the name is adjusted by the ApexClass before the method is instantiated
     private readonly name: string;
-    // e.g. "List<Account>" or "String"; in case of no return value
+    // e.g. "List<Account>", "void" or "String"
     private returnType: string = 'void';
     // the body of the method
     private body: ApexSection | undefined;
@@ -53,6 +53,13 @@ export class ApexMethod extends ApexSection {
         this.callingMethods.add(callingMethod);
     }
 
+    // Use with care; only known use 2024-06-28: FlowActions
+    registerParameter(variable: ApexVariable) : ApexVariable {
+        // we default to read-only; if a return is needed, this will be set explicitly
+        super.addVariable(variable, VariableUse.Read);
+        return variable;
+    }
+
     // FIXME: currently only used in record lookup
     registerReturnType(returnType: string) : ApexMethod {
         this.returnType = returnType;
@@ -64,7 +71,7 @@ export class ApexMethod extends ApexSection {
         this.var2type = var2type;
     }
 
-    registerBody(body: ApexSection): void {
+    registerBody(body?: ApexSection): void {
         this.body = body;
     }
 
@@ -80,19 +87,23 @@ export class ApexMethod extends ApexSection {
 
     build() : string {
         const methodBody = this.body ? (NL + this.body.build() + NL) : '';
-        const params = this.allVariablesAreClassFields ? new Array<string>() : this.getParams();
+        // const params = this.allVariablesAreClassFields ? new Array<string>() : this.getParams();
+        const params = this.getParams();
         const body = `private ${this.returnType} ${this.name}(${params}) {${methodBody}}`;
         // return super.buildWithBody(body);
         return body;
     }
 
-    buildCall() : string {
-        const args = this.allVariablesAreClassFields ? new Array<string>() : this.getArguments();
+    buildCall(argOverwrite?: string) : string {
+        // const args = this.allVariablesAreClassFields ? new Array<string>() : this.getArguments();
+        const args = argOverwrite ?? this.getArguments();
         return `${this.name}(${args});`;
     }
 
     resolveVariables(): Map<string, ApexVariableInfo> {
-        if(this.body) {
+        if(this.body 
+            && !this.allVariablesAreClassFields
+        ) {
             // this.addVariables(this.body.resolveVariables());
             return this.body.resolveVariables();
         }
@@ -105,7 +116,8 @@ export class ApexMethod extends ApexSection {
 
         // return variables;
 
-        return new Map<string, ApexVariableInfo>();
+        // return new Map<string, ApexVariableInfo>();
+        return this.getVariableInfos();
     }
 
     // TODO: just for debugging
@@ -154,13 +166,15 @@ export class ApexMethod extends ApexSection {
     // ----------------------------------------------------------------------------------------------------------------
 
     private getParams() : string {
-        if(this.allVariablesAreClassFields) return '';
+        // if(this.allVariablesAreClassFields) return '';
         return [...this.resolveVariables().values()].map(variable => 
             variable.getApexVariable().getApexType() + ' ' + variable.getApexVariable().getName()).join(', ');
     }
 
+    // This is in case we can use the same names in the caller and the parameters; this does not work e.g. for
+    // literals
     private getArguments() : string {
-        if(this.allVariablesAreClassFields) return '';
+        // if(this.allVariablesAreClassFields) return '';
         return [...this.resolveVariables().values()].map(variable =>
             variable.getApexVariable().getName()).join(', ');
     }

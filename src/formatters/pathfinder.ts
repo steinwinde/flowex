@@ -34,9 +34,7 @@ export class PathFinder {
         const apexMethod = knowledge.builder.getMainClass().registerMethod(node!.flowElement);
         // const body = this.processWithMethodOption(currentNodeName, apexMethod);
         const methodBody: ApexSection | undefined = this.processWithDecisionAndLoop(currentNodeName, apexMethod);
-        if(methodBody !== undefined) {
-            apexMethod.registerBody(methodBody);
-        }
+        apexMethod.registerBody(methodBody);
 
         // if(body !== undefined) {
         //     knowledge.builder.getMainClass().addToBody(body);
@@ -54,9 +52,7 @@ export class PathFinder {
                 const node = knowledge.name2node.get(currentNodeName);
                 apexMethod = knowledge.builder.getMainClass().registerMethod(node!.flowElement);
                 const methodBody: ApexSection | undefined = this.processWithDecisionAndLoop(currentNodeName, apexMethod);
-                if(methodBody !== undefined) {
-                    apexMethod.registerBody(methodBody);
-                }
+                apexMethod.registerBody(methodBody);
             }
 
             this.setMethodOfNode(currentNodeName, apexMethod);

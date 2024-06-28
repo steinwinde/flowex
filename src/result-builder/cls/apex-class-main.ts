@@ -84,7 +84,7 @@ export class ApexMainClass extends ApexClass {
      */
     registerMethod(flowElement : FlowElement, prefix?: METHOD_PREFIXES, salesforceObj?: string): ApexMethod {
 
-        // start element has no name
+        // "start" element has no name
         const flowElementName = flowElement.name ? flowElement.name[0] : TOP_METHOD;
         const mainPart = salesforceObj ?? flowElementName;
         const preliminaryName : string = (prefix??'') + mainPart[0].toUpperCase() + mainPart.slice(1);
@@ -253,7 +253,10 @@ ${this.otherMethods}}`;
         this.resolveVariablesOfMethods();
         this.variables = this.getVariablesSorted();
         
-        new MethodScout(knowledge.name2node, knowledge.builder.getMainClass().getMethods()).run();
+        // TODO: Is the method scout of any use anyway?
+        if(!this.globalVariables) {
+            // new MethodScout(knowledge.name2node, knowledge.builder.getMainClass().getMethods()).run();
+        }
 
         this.setConstructor();
         this.setFields4ClassHead();

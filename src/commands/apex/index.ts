@@ -10,7 +10,7 @@ export default class Apex extends Command {
 
     static flags = {
         globalVariables: Flags.boolean({char: 'g', default: true, 
-            description: 'Make all variables class fields, i.e. keep them global like during Flow execution', required: false}),
+            description: 'Aim at making variables class fields, i.e. global like in Flow execution', required: false}),
         // noversion is default in test runs
         noversion: Flags.boolean({char: 'n', default: false, 
             description: 'Do not include version information in output', required: false}),

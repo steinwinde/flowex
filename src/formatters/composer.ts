@@ -1,4 +1,3 @@
-import { MethodScout } from '../extractor/traversals/method-scout.js';
 import {PathFinder} from './pathfinder.js';
 
 const TAB_LENGTH = 4;

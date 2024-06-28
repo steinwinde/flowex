@@ -10,9 +10,14 @@ export class ApexMethodCall extends ApexSection {
     }
 
     build(): string {
-        // It is for this reason build() must be called late ;-)
-        return this.apexMethod.buildCall();
-        // const body = this.apexMethod.buildCall();
-        // return super.buildWithBody(body);
+        // return this.apexMethod.buildCall();
+        
+        const body = this.apexMethod.buildCall();
+        const additionalBody = super.build();
+        if(body && additionalBody) {
+            return body + NL + additionalBody;
+        }
+
+        return body ?? additionalBody;
     }
 }
