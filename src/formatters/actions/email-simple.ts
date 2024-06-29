@@ -4,19 +4,20 @@ export default class EmailSimple implements BasicAction {
 
     private body: string;
     private parameterTypes = new Map<string, string>([
+        ['addThreadingTokenToBody', 'Boolean'],
+        ['addThreadingTokenToSubject', 'Boolean'],
         ['emailAddresses', 'String'], 
         ['emailAddressesArray', 'List<String>'],
-        ['senderType', 'String'],
-        ['senderAddress', 'String'],
         ['emailBody', 'String'],
-        ['sendRichBody', 'Boolean'],
-        ['useLineBreaks', 'Boolean'],
-        ['relatedRecordId', 'Id'],
-        ['recipientId', 'Id'],
-        ['logEmailOnSend', 'Boolean'],
+        ['emailSubject', 'String'],
         ['emailTemplateId', 'Id'],
-        ['addThreadingTokenToBody', 'Boolean'],
-        ['addThreadingTokenToSubject', 'Boolean']
+        ['logEmailOnSend', 'Boolean'],
+        ['recipientId', 'Id'],
+        ['relatedRecordId', 'Id'],
+        ['senderAddress', 'String'],
+        ['senderType', 'String'],
+        ['sendRichBody', 'Boolean'],
+        ['useLineBreaks', 'Boolean']
     ]);
 
     constructor(actionName: string, inputParams: Map<string, string>) {

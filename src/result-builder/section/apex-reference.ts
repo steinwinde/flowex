@@ -114,40 +114,33 @@ export class ApexReference extends ApexSection {
 
     private static getFlow(right: string) : string {
         // https://help.salesforce.com/s/articleView?id=sf.flow_ref_resources_system_variables.htm&type=5
+        // Not all of below make sense in an Apex context, but we can still provide them
         // something like:
         // $Flow.CurrentDate
-        // $Flow.CurrentDateTime
         // $Flow.CurrentStage
-        // $Flow.FaultMessage
-        // $Flow.InterviewStartTime
         // $Flow.InterviewGuid
-        // https://help.salesforce.com/s/articleView?id=sf.flow_pause_recordassoc.htm&type=5
-        // (has also: ActiveStages)
-        // "All it takes to associate your org’s paused interviews with a record is setting the $Flow.CurrentRecord global variable in your flow."
-        // I therefore assume we don't need this:
-        // $Flow.CurrentRecord
         switch (right) {
-        case 'CurrentDate': {
-            // return Variable.getInstance4RightHand('Date.today()');
-            return 'Date.today()';
+            case 'CurrentDate': {
+                return 'Date.today()';
+            }
+        
+            case 'CurrentDateTime':
+            case 'InterviewStartTime': {
+                return 'Date.now()';
+            }
+        
+            case 'ActiveStages':
+            case 'CurrentStage': {
+                return right;
+            }
+
+            // case 'CurrentRecord':
+            // case 'InterviewGuid':
+            // case 'FaultMessage': 
+            default: {
+                return `'${right}'`;
+            }
         }
-    
-        case 'CurrentDateTime': {
-            // return Variable.getInstance4RightHand('Date.now()');
-            return 'Date.now()';
-        }
-    
-        case 'ActiveStages': {
-            // TODO: we need to align this with the Resource "Stage", I think
-            break;
-        }
-            // TODO: have we captured all relevant $Flow values?
-        }
-    
-        // TODO: is this meaningful?
-        // return Variable.getInstance4RightHand('null');
-        // TODO: is this correct?
-        return right;
     }
     
     private static getOrganization(right: string) : string {

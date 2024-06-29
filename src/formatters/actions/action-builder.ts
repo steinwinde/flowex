@@ -10,22 +10,22 @@ export default function getAction(flowElem: FlowActionCall) : BasicAction {
     const actionName: string = flowElem.actionName[0];
     const inputParams: Map<string, string> = mapInputParameters(flowElem.inputParameters);
     switch (flowElem.actionType[0]) {
-    case 'emailAlert': {
-        // flow action "Email Alert"
-        return new EmailAlert(name, actionName, inputParams);
-    }
+        case 'emailAlert': {
+            // flow action "Email Alert"
+            return new EmailAlert(name, actionName, inputParams);
+        }
 
-    case 'emailSimple': {
-        return new EmailSimple(actionName, inputParams);
-    }
+        case 'emailSimple': {
+            return new EmailSimple(actionName, inputParams);
+        }
 
-    case 'quickAction': {
-        return new UnsupportedAction(actionName);
-    }
+        case 'quickAction': {
+            return new UnsupportedAction(actionName);
+        }
 
-    default: {
-        return new UnsupportedAction(actionName);
-    }
+        default: {
+            return new UnsupportedAction(actionName);
+        }
     }
 }
 

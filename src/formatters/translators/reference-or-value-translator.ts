@@ -14,7 +14,7 @@ export function getFlowElementReferenceOrValue(val: FlowElementReferenceOrValue,
         const variable : string = apexReference.build();
         // TODO: variable can be "null", for instance; this must be translated to a valid name in Apex
         // TODO: This can be a variable, but it can also be an expression like "[SELECT Id FROM Organization]",
-        // which is not considered by all the code that called this method
+        // which is not something all the code that called this method is prepared to handle
         return {r: apexReference, t: 'elementReference', v: prefix + variable};
     }
 

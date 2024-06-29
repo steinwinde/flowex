@@ -22,6 +22,7 @@ import { ApexComment } from '../result-builder/section/apex-comment.js';
 import { ApexSectionLiteral } from '../result-builder/section/apex-section-literal.js';
 import { ApexVariable } from '../result-builder/apex-variable.js';
 import { camelize } from '../utils.js';
+import { getFlowElementReferenceOrValue } from './translators/reference-or-value-translator.js';
 
 export class ElementProcessor {
     // private methodParameters: Map<string, Parameter[]>;
@@ -122,24 +123,24 @@ export class ElementProcessor {
         
         const args : Array<string> = new Array<string>();
         for(const param of flowActionCall.inputParameters) {
-            if(param.value[0].elementReference !== undefined) {
-                // The key used in the Flow definition
-                const parameterName = param.name[0];
-                // TODO: The value in the Flow definition can probably be a literal
-                const value = param.value[0].elementReference[0];
-                const beautifiedName: string = camelize(value.replace('.', ''), false);
-                const apexVariable = new ApexVariable(beautifiedName);
-                const apexType = action.getParameterTypes().get(parameterName);
-                if(apexType === undefined) {
-                    throw new Error('No type found for parameter: ' + parameterName 
-                        + ' of action: ' + flowActionCall.actionName[0]);
-                }
-
-                apexVariable.registerType(apexType);
-                apexMethod.registerParameter(apexVariable);
-
-                args.push(value);
+            const referenceOrValue = getFlowElementReferenceOrValue(param.value[0], false);
+            // The key used in the Flow definition, at the same time the parameter name in the Apex method
+            const parameterName = param.name[0];
+            // The argument when calling the Apex method
+            const value = referenceOrValue.v;
+            // const beautifiedName: string = camelize(value.replace('.', ''), false);
+            // const apexVariable = new ApexVariable(beautifiedName);
+            const apexVariable = new ApexVariable(parameterName);
+            const apexType = action.getParameterTypes().get(parameterName);
+            if(apexType === undefined) {
+                throw new Error('No type found for parameter: ' + parameterName 
+                    + ' of action: ' + flowActionCall.actionName[0]);
             }
+
+            apexVariable.registerType(apexType).registerLocal(knowledge.builder.getMainClass().getLastMethod());
+            apexMethod.registerParameter(apexVariable);
+
+            args.push(value);
         }
 
         // TODO: are there never any output parameters? method returns?
