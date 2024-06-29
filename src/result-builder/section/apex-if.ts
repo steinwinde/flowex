@@ -73,7 +73,14 @@ export class ApexIf extends ApexSection {
             result += ` else {${NL}${bodies.at(-1)}${NL}}`;
         }
 
-        return result;
+        const additionalBody = super.build();
+        if(result && additionalBody) {
+            return result + NL + additionalBody;
+        }
+
+        return result ?? additionalBody;
+
+        // return result;
     }
 }
 

@@ -6,7 +6,7 @@ import { ApexSection } from '../../result-builder/section/apex-section.js';
 import { ApexIfCondition, apexIfConditionFromFlowRecordFilter } from '../../result-builder/section/apex-if-condition.js';
 import { ApexSectionLiteral } from '../../result-builder/section/apex-section-literal.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
-import { ApexVariable, VAR_RECORD } from '../../result-builder/apex-variable.js';
+import { ApexVariable, VAR_ITEM, VAR_L, VAR_RECORD } from '../../result-builder/apex-variable.js';
 import { apexFor } from '../../result-builder/section/apex-for.js';
 import { ApexMethodCall } from '../../result-builder/section/apex-method-call.js';
 import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
@@ -80,29 +80,27 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic);
     const whereVariables = soqlWhere.getVariableNames().map(name => new ApexVariable(name));
     const where: string = soqlWhere.build();
-    const assignments = translateAssignments4Update(flowElem.inputAssignments, 'item');
     const obj: string = flowElem.object[0];
+    knowledge.builder.getMainClass().registerVariable(VAR_ITEM)
+        .registerType(obj)
+        .registerLocal(knowledge.builder.getMainClass().getLastMethod());
+    const assignments = translateAssignments4Update(flowElem.inputAssignments, VAR_ITEM);
 
     const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, METHOD_PREFIXES.METHOD_PREFIX_UPDATE, 
             flowElem.name[0]);
     const soqlStatement = soql().select('Id').from(obj).where(where).build();
-    const leftHand = new ApexLeftHand(`List<${obj}> l`, [new ApexVariable(obj).registerIsCollection()]);
+    const apexVariableL = knowledge.builder.getMainClass().registerVariable(VAR_L)
+        .registerType(obj).registerIsCollection().registerLocal(apexMethod);
+    const leftHand = new ApexLeftHand(`List<${obj}> l`, [apexVariableL]);
     const rightHand = new ApexRightHand(soqlStatement, whereVariables);
     const assignmentForList = new ApexAssignment(leftHand, rightHand);
-    const apexForExpression = apexFor().item(obj).itemInstance('item').items('l').set(assignments);
-    const apexVariable = new ApexVariable('l').registerType(obj).registerIsCollection();
+    const apexForExpression = apexFor().item(obj).itemInstance(VAR_ITEM).items(VAR_L).set(assignments);
+    const apexVariable = new ApexVariable(VAR_L).registerType(obj).registerIsCollection();
     const updateStatement = new ApexSectionLiteral('update l;').registerVariable(apexVariable);
     const apexSection = new ApexSection()
         .addSection(assignmentForList)
         .addSection(apexForExpression).
         addSection(updateStatement);
-    
-// const m = `List<${obj}> l = ${soqlStatement};
-// for(${obj} item: l) {
-// ${assignments}
-// }
-// update l;
-// `;
     
     apexMethod.registerBody(apexSection);
     return new ApexMethodCall(apexMethod);

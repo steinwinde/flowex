@@ -5,6 +5,8 @@ import { SoqlQuery } from "./soql/soql-query.js";
 // Names of variables of potentially global importance, created by Flowex
 export const VAR_RECORD = 'record';
 export const VAR_RESULT = 'result';
+export const VAR_ITEM = 'item';
+export const VAR_L = 'l';
 export const VAR_I = 'i';
 export const VAR_N = 'n';
 export const VAR_S = 's';

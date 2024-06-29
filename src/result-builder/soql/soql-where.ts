@@ -44,7 +44,10 @@ export class SoqlWhere {
             if(filter.value[0].elementReference) {
                 variableName = val.slice(1);
                 const index = variableName.indexOf('.');
-                variableName = variableName.slice(0, index);
+                if(index > -1) {
+                    variableName = variableName.slice(0, index);
+                }
+                
                 this.variableNames.push(variableName);
             }
     

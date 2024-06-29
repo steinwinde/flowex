@@ -54,31 +54,30 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
     // case Ay
     const obj: string = flowElem.object[0];
     const storeOutputAutomatically = flowElem.storeOutputAutomatically && flowElem.storeOutputAutomatically[0] === 'true';
-    let localObj = '';
+    const localObj = '';
     if (!storeOutputAutomatically) {
-        localObj = obj + ' ';
+        // localObj = obj + ' ';
     }
 
     const vars = flowElem.inputAssignments ? translateAssignments4Create(flowElem.inputAssignments) : '';
-    const variable: string = flowElem.name[0];
-    // for an explanation see the dependent element processor for RecordCreate
-    const recordCreate = flowElem as FlowRecordCreate;
-    const hasNewVariable = recordCreate.storeOutputAutomatically && recordCreate.storeOutputAutomatically[0] === 'true';
+    const variableName: string = flowElem.name[0];
     const apexVariables = new Array<ApexVariable>();
-    if(hasNewVariable) {
-        const apexVariable = knowledge.builder.getMainClass().getVariable(variable);
+    if(storeOutputAutomatically) {
+        const apexVariable = knowledge.builder.getMainClass().getVariable(variableName);
         apexVariables.push(apexVariable);
+    } else {
+        knowledge.builder.getMainClass().registerVariable(variableName).registerType(obj);
     }
 
     let additionalAssignment : ApexAssignment | undefined;
     if (assignRecordIdToReference) {
-        const apexRightHand = new ApexRightHand(`${variable}.Id`, apexVariables);
+        const apexRightHand = new ApexRightHand(`${variableName}.Id`, apexVariables);
         additionalAssignment = new ApexAssignment(assignRecordIdToReference, apexRightHand);
     }
 
-    const apexLeftHand = new ApexLeftHand(`${localObj}${variable}`, apexVariables);
+    const apexLeftHand = new ApexLeftHand(`${localObj}${variableName}`, apexVariables);
     const assignment = new ApexAssignment(apexLeftHand, `new ${obj}(${vars})`);
-    const apexSectionLiteral = new ApexSectionLiteral(`insert ${variable};`);
+    const apexSectionLiteral = new ApexSectionLiteral(`insert ${variableName};`);
 
 //     const s = `${localObj}${variable} = new ${obj}(${vars});
 // insert ${variable};${additionalAssignment}`;
