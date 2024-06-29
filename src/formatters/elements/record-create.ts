@@ -61,14 +61,22 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
 
     const vars = flowElem.inputAssignments ? translateAssignments4Create(flowElem.inputAssignments) : '';
     const variable: string = flowElem.name[0];
-    const apexVariable = knowledge.builder.getMainClass().getVariable(variable);
+    // for an explanation see the dependent element processor for RecordCreate
+    const recordCreate = flowElem as FlowRecordCreate;
+    const hasNewVariable = recordCreate.storeOutputAutomatically && recordCreate.storeOutputAutomatically[0] === 'true';
+    const apexVariables = new Array<ApexVariable>();
+    if(hasNewVariable) {
+        const apexVariable = knowledge.builder.getMainClass().getVariable(variable);
+        apexVariables.push(apexVariable);
+    }
+
     let additionalAssignment : ApexAssignment | undefined;
     if (assignRecordIdToReference) {
-        const apexRightHand = new ApexRightHand(`${variable}.Id`, [apexVariable]);
+        const apexRightHand = new ApexRightHand(`${variable}.Id`, apexVariables);
         additionalAssignment = new ApexAssignment(assignRecordIdToReference, apexRightHand);
     }
 
-    const apexLeftHand = new ApexLeftHand(`${localObj}${variable}`, [apexVariable]);
+    const apexLeftHand = new ApexLeftHand(`${localObj}${variable}`, apexVariables);
     const assignment = new ApexAssignment(apexLeftHand, `new ${obj}(${vars})`);
     const apexSectionLiteral = new ApexSectionLiteral(`insert ${variable};`);
 
