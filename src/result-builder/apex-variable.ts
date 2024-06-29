@@ -245,7 +245,6 @@ export class ApexVariable {
 }
 
 export function apexVariableFromResourceName(resourceName: string): ApexVariable {
-    // const apexVariable = knowledge.builder.getMainClass().getVariables().find(variable => variable.getName() === resourceName);
     const apexVariable = knowledge.builder.getMainClass().getVariable(resourceName);
     assertApexVariableDefined(apexVariable);
 

@@ -48,6 +48,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
     if(rightHand.t === 'elementReference') {
         const stageIndex = knowledge.builder.getMainClass().getStage(rightHand.v);
         if(stageIndex !== -1) {
+            // this will represent a number value
             rightHand.v = String(stageIndex);
         }
     }
@@ -156,7 +157,10 @@ function getAdd(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElemen
     const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromLeftHand(leftHand.v));
     const apexVariables = [apexVariableLeftHand];
     if (leftHand.t.startsWith('List<') || leftHand.t === 'Picklist' || leftHand.t === 'Stage') {
-        if(rightHand.t === 'elementReference') {
+        if(rightHand.t === 'elementReference'
+            // Because Stage variables are translated to their index, we don't need to track them
+            && leftHand.v !== 'ActiveStages'
+        ) {
             const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
             apexVariables.push(apexVariableRightHand);
         }
@@ -289,7 +293,7 @@ function getLeftHand(s: string, var2type: Map<string, Variable>) : MyFlowElement
         // for clarity. When building an Apex-to-LWC converter, this has to be reconsidered.
         let t = 'List<String>';
         if (s.endsWith('CurrentRecord')) t = 'Record';
-        else if (s.endsWith(VAR_CURRENT_STAGE)) t = 'Stage';
+        else if (s.endsWith(VAR_CURRENT_STAGE)) t = 'String';
         s = s.split('.')[1];
         return {t, v: s};
     }
