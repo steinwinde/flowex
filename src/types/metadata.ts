@@ -534,6 +534,7 @@ export interface Flow {
     screens: FlowScreen[],
     stages: FlowStage[],
     start: FlowStart[],
+    startElementReference: string[],
     subflows: FlowSubflow[],
     textTemplates: FlowTextTemplate[],
     variables: FlowVariable[],

@@ -1,5 +1,5 @@
 import { ApexSection } from './apex-section.js';
-import { VAR_RECORD } from '../apex-variable.js';
+import { VAR_RECORD, VAR_RECORD_PRIOR } from '../apex-variable.js';
 import { soql } from '../soql/soql-query.js';
 
 // TODO: This should hold a variable and the build method should be called in the context of parent section builds
@@ -88,13 +88,15 @@ export class ApexReference extends ApexSection {
         }
     
         case '$Record': {
-            const v : string = 'record.' + right;
-            // return Variable.getInstance4RightHandVariable('is ignored', 'is ignored', v, false, false);
+            const v : string = VAR_RECORD + '.' + right;
             return v;
         }
     
-        // case '$Record_Prior':
-        //     return getRecordPrior(right);
+        case '$Record__Prior': {
+            const v : string = VAR_RECORD_PRIOR + '.' + right;
+            return v;
+        }
+
         case '$System': {
             return ApexReference.getSystem(right);
         }
@@ -164,11 +166,6 @@ export class ApexReference extends ApexSection {
         // return Variable.getInstance4RightHand(s);
         return s;
     }
-    
-    // TODO: implement along with dummy call from Trigger
-    // private static getRecordPrior(right: string) : Variable {
-    //     return...
-    // }
     
     private static getSystem(right: string) : string {
         if (right === 'OriginDateTime') {

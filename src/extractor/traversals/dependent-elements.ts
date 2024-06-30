@@ -1,8 +1,8 @@
 import {Knowledge} from '../index.js';
 import {ApexDataType} from '../../formatters/translators/data-type-translator.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
-import {Flow, FlowAssignment, FlowAssignmentItem, FlowCollectionProcessor, FlowCustomError, FlowDecision, FlowElementReferenceOrValue, 
-    FlowFormula, FlowInputFieldAssignment, FlowLoop, FlowNode, FlowRecordCreate, FlowRecordLookup, FlowStart, FlowSubflow} 
+import {Flow, FlowAssignment, FlowCollectionProcessor, FlowCustomError, FlowDecision, FlowElement, FlowElementReferenceOrValue, 
+    FlowFormula, FlowLoop, FlowNode, FlowRecordCreate, FlowRecordLookup, FlowStart, FlowSubflow} 
     from '../../types/metadata.js';
 import {MyFlowElementReferenceOrValue} from '../../types/metadata-simple.js';
 import * as utils from '../utils.js';
@@ -11,6 +11,8 @@ import { ApexVariable, VAR_RECORD } from '../../result-builder/apex-variable.js'
 import { Variable } from '../../types/variable.js';
 import { skipSubflowInputAssignment } from '../../formatters/elements/subflow.js';
 import { BasicElementProcessor } from './basic-elements.js';
+import { Node } from "../../types/node.js";
+import { Targets } from '../../types/targets.js';
 
 export class DependentElementProcessor extends BasicElementProcessor {
     private f: Flow;
@@ -23,7 +25,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
     }
 
     run() : void {
-        this.processStart(this.f.start[0]);
+        this.processStart(this.f.start || this.f.startElementReference);
         this.processDecisions(this.f.decisions);
         this.processAssignments(this.f.assignments);
         this.processSimpleElements(this.f.recordDeletes, 'recordDeletes');
@@ -255,7 +257,19 @@ export class DependentElementProcessor extends BasicElementProcessor {
         }
     }
 
-    private processStart(flowStart : FlowStart): void {
+    private processStart(flowStarts : FlowStart[] | string): void {
+        if(typeof flowStarts[0] === 'string') {
+            // we can't do prepare4Retrieval
+            const flowElement: FlowElement = {} as FlowElement;
+            const node = new Node(flowElement);
+            this.knowledge.name2node.set(node.name, node);
+            node.type = 'start';
+            node.targets = Targets.fromStartElementReference(flowStarts[0]);
+
+            return;
+        }
+
+        const flowStart = flowStarts[0] as FlowStart;
         // flows of type "Autolaunched Flow (No Trigger)" have no triggerType
         if (flowStart.triggerType) {
             this.knowledge.triggerType = flowStart.triggerType[0];

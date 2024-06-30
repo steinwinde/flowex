@@ -6,7 +6,7 @@ import { ApexIfCondition } from "../section/apex-if-condition.js";
 import { apexIf } from "../section/apex-if.js";
 import { ApexSectionLiteral } from "../section/apex-section-literal.js";
 import { ApexSection } from "../section/apex-section.js";
-import { ApexVariable, VAR_RESULT } from "../apex-variable.js";
+import { ApexVariable, VAR_I, VAR_ITEM, VAR_RESULT, VAR_WRAPPER_LIST } from "../apex-variable.js";
 import { ApexLeftHand } from "../section/apex-left-hand.js";
 import { ApexRightHand } from "../section/apex-right-hand.js";
 
@@ -34,36 +34,36 @@ export class ApexComparableClass extends ApexClass {
 
     getMethod(ref: string, apexType: string, limit?: number[]) : ApexSection {
         let secondFor : ApexFor | undefined;
-        const apexVariableWrapperList = new ApexVariable('wrapperList').registerType(apexType).registerIsCollection();
+        const apexVariableWrapperList = new ApexVariable(VAR_WRAPPER_LIST).registerType(apexType).registerIsCollection();
         const apexVariableRef = new ApexVariable(ref).registerType(apexType);
-        const apexVariableItem = new ApexVariable('item').registerType(apexType);
+        const apexVariableItem = new ApexVariable(VAR_ITEM).registerType(apexType);
         if(limit) {
             if (limit[0] > 0) {
-                const body = `${ref}.add(wrapperList[i].${this.v});`;
+                const body = `${ref}.add(${VAR_WRAPPER_LIST}[${VAR_I}].${this.v});`;
                 const apexSectionLiteral = new ApexSectionLiteral(body)
                     .registerVariable(apexVariableRef)
                     .registerVariable(apexVariableWrapperList);
-                secondFor = apexFor().lt('wrapperList.size()').andLt(limit[0]).set(apexSectionLiteral);
+                secondFor = apexFor().lt(`${VAR_WRAPPER_LIST}.size()`).andLt(limit[0]).set(apexSectionLiteral);
             } else {
-                const body = `${ref}.add(item.${this.v});`;
+                const body = `${ref}.add(${VAR_ITEM}.${this.v});`;
                 const apexSectionLiteral = new ApexSectionLiteral(body)
                     .registerVariable(apexVariableRef)
                     .registerVariable(apexVariableItem);
-                secondFor = apexFor().item(this.name).items('wrapperlist').set(apexSectionLiteral);
+                secondFor = apexFor().item(this.name).items(VAR_WRAPPER_LIST).set(apexSectionLiteral);
             }
         }
 
-        const body = `wrapperList.add(new ${this.name}(item));`;
+        const body = `${VAR_WRAPPER_LIST}.add(new ${this.name}(${VAR_ITEM}));`;
         const apexSectionLiteral = new ApexSectionLiteral(body)
                     .registerVariable(apexVariableWrapperList)
                     .registerVariable(apexVariableItem);
         const firstFor = apexFor().item(this.objName).items(ref).set(apexSectionLiteral);
 
-        const body1 = `List<${this.name}> wrapperList = new List<${this.name}>();`;
+        const body1 = `List<${this.name}> ${VAR_WRAPPER_LIST} = new List<${this.name}>();`;
         const apexSectionLiteral1 = new ApexSectionLiteral(body1)
                     .registerVariable(apexVariableWrapperList);
 
-        const body2 = `wrapperList.sort();` + NL + `${ref}.clear();`;
+        const body2 = `${VAR_WRAPPER_LIST}.sort();` + NL + `${ref}.clear();`;
         const apexSectionLiteral2 = new ApexSectionLiteral(body2)
                     .registerVariable(apexVariableWrapperList)
                     .registerVariable(apexVariableRef);

@@ -21,7 +21,6 @@ import { ApexTry } from '../result-builder/section/apex-try.js';
 import { ApexComment } from '../result-builder/section/apex-comment.js';
 import { ApexSectionLiteral } from '../result-builder/section/apex-section-literal.js';
 import { ApexVariable } from '../result-builder/apex-variable.js';
-import { camelize } from '../utils.js';
 import { getFlowElementReferenceOrValue } from './translators/reference-or-value-translator.js';
 
 export class ElementProcessor {

@@ -3,7 +3,13 @@ import { FlowDecision, FlowLoop, FlowNode } from "./metadata.js";
 
 export class Targets {
 
-    static  fromFlowNode(flowNode: FlowNode, p: string): Targets {
+    static fromStartElementReference(targetName : string): Targets {
+        const t: Targets = new Targets();
+        t.regular[0] = targetName;
+        return t;
+    }
+
+    static fromFlowNode(flowNode: FlowNode, p: string): Targets {
 
         const t: Targets = new Targets();
         if (p === 'decisions') {

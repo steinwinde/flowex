@@ -2,16 +2,23 @@ import { FlowElement } from "../types/metadata.js";
 import { ApexMethod } from "./section/apex-method.js";
 import { SoqlQuery } from "./soql/soql-query.js";
 
+
 // Names of variables of potentially global importance, created by Flowex
+// globally unique variables
 export const VAR_RECORD = 'record';
+export const VAR_RECORD_PRIOR = 'recordPrior';
+export const VAR_CURRENT_STAGE = 'CurrentStage';
+export const VAR_ACTIVE_STAGES = 'ActiveStages';
+// non-unique variables
 export const VAR_RESULT = 'result';
 export const VAR_ITEM = 'item';
+export const VAR_WRAPPER_LIST = 'wrapperList';
 export const VAR_L = 'l';
 export const VAR_I = 'i';
 export const VAR_N = 'n';
 export const VAR_S = 's';
-export const VAR_CURRENT_STAGE = 'CurrentStage';
-export const VAR_ACTIVE_STAGES = 'ActiveStages';
+
+// TODO: not sure we need this or should even use it; it's also not up-to-date
 export type VAR = typeof VAR_ACTIVE_STAGES | typeof VAR_CURRENT_STAGE | typeof VAR_I | typeof VAR_N | typeof VAR_RECORD | typeof VAR_RESULT | typeof VAR_S;
 
 // anything not in the list of Apex types is considered object

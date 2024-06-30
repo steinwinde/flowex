@@ -1,9 +1,8 @@
 import {FlowDynamicChoiceSet, FlowRecordLookup} from '../../types/metadata.js';
-import { Variable } from '../../types/variable.js';
 import {translateAssignments4LookupAss, translateAssignments4LookupRef} from '../translators/assignment-translator.js';
 import {soql} from '../../result-builder/soql/soql-query.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import { ApexVariable, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
+import { ApexVariable, VAR_L, VAR_RECORD, VAR_RECORD_PRIOR, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { apexIf } from '../../result-builder/section/apex-if.js';
 import { apexIfConditionFromString } from '../../result-builder/section/apex-if-condition.js';
@@ -46,6 +45,18 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
 
     const firstRecordOnly = getFirstRecordOnly(flowElem, ref);
     const [soqlStatement, soqlWhereApexVariablesByName] = getSoqlStatement(flowElem, obj, firstRecordOnly);
+
+    // TODO: This is not the right place; we probably should do this earlier
+    for(const apexVariable of soqlWhereApexVariablesByName) {
+        if(apexVariable.getName()===VAR_RECORD_PRIOR) {
+            const apexPrior = knowledge.builder.getMainClass().registerVariable(VAR_RECORD_PRIOR).registerConstructorVariable();
+            const apexType = knowledge.builder.getMainClass().getVariable(VAR_RECORD).getApexType();
+            if(apexType) {
+                apexPrior.registerType(apexType);
+            }
+        }
+    }
+
     const soqlWhereApexVariables = soqlWhereApexVariablesByName.map(e => knowledge.builder.getMainClass().getVariable(e.getName()));
 
     const name: string = flowElem.name[0];
@@ -75,17 +86,17 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
         if (flowElem.outputReference !== undefined) {
             // option 3
             const currentMethod = knowledge.builder.getMainClass().getLastMethod();
-            const apexVariable = knowledge.builder.getMainClass().registerVariable('l')
+            const apexVariable = knowledge.builder.getMainClass().registerVariable(VAR_L)
                 .registerType(obj).registerIsCollection().registerLocal(currentMethod);
             
-            let ass = translateAssignments4LookupRef(flowElem.queriedFields!, ref!, 'l[0]');
+            let ass = translateAssignments4LookupRef(flowElem.queriedFields!, ref!, VAR_L + '[0]');
             const assignmentsSection = new ApexSection().addSections(ass);
             const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, 
                     METHOD_PREFIXES.METHOD_PREFIX_POPULATE, obj);
-            const leftHand = new ApexLeftHand(`List<${obj}> l`, [apexVariable]);
+            const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariable]);
             const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
             const apexAssignment = new ApexAssignment(leftHand, rightHand);
-            const apexIfCondition = apexIfConditionFromString('l.size()!=0', [apexVariable]);
+            const apexIfCondition = apexIfConditionFromString(VAR_L + '.size()!=0', [apexVariable]);
             const apexIfExpression = apexIf().if(apexIfCondition, assignmentsSection);
 
             const apexSection = new ApexSection().addSections([apexAssignment, apexIfExpression]);
@@ -101,25 +112,25 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
         if (flowElem.outputAssignments !== undefined) {
 
             const currentMethod = knowledge.builder.getMainClass().getLastMethod();
-            const apexVariable = knowledge.builder.getMainClass().registerVariable('l')
+            const apexVariable = knowledge.builder.getMainClass().registerVariable(VAR_L)
                 .registerType(obj).registerIsCollection().registerLocal(currentMethod);
 
-            let ass = translateAssignments4LookupAss(flowElem.outputAssignments!, 'l[0]', false);
+            let ass = translateAssignments4LookupAss(flowElem.outputAssignments!, VAR_L + '[0]', false);
             const assignmentsSection = new ApexSection().addSections(ass);
             // option 4
             const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, 
                     METHOD_PREFIXES.METHOD_PREFIX_POPULATE, obj);
 
-            const leftHand = new ApexLeftHand(`List<${obj}> l`, [apexVariable]);
+            const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariable]);
             const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
             const apexAssignment = new ApexAssignment(leftHand, rightHand);
-            const apexIfCondition = apexIfConditionFromString('l.size()!=0', [apexVariable]);
+            const apexIfCondition = apexIfConditionFromString(VAR_L + '.size()!=0', [apexVariable]);
             const apexIfExpression = apexIf().if(apexIfCondition, assignmentsSection);
 
             const apexSection = new ApexSection().addSections([apexAssignment, apexIfExpression]);
 
             if (assignNull) {
-                ass = translateAssignments4LookupAss(flowElem.outputAssignments!, 'l[0]', true);
+                ass = translateAssignments4LookupAss(flowElem.outputAssignments!, VAR_L + '[0]', true);
                 apexIfExpression.default(new ApexSection().addSections(ass));
             }
 

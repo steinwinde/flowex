@@ -1,5 +1,4 @@
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
-import { ApexVariable } from '../../result-builder/apex-variable.js';
 import {FlowInputFieldAssignment, FlowOutputFieldAssignment} from '../../types/metadata.js';
 import {getFlowElementReferenceOrValue} from './reference-or-value-translator.js';
 import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
@@ -83,19 +82,17 @@ export function translateAssignments4LookupAss(ass: FlowOutputFieldAssignment[],
     for (const a of ass) {
         let assignment: ApexAssignment;
         const leftHand: string = a.assignToReference[0];
-        const apexVariableLeftHand = knowledge.builder.getMainClass().getVariable(leftHand);
+        const leftHandVariableName = leftHand.split('.')[0];
+        const apexVariableLeftHand = knowledge.builder.getMainClass().getVariable(leftHandVariableName);
         const apexLeftHand = new ApexLeftHand(leftHand, [apexVariableLeftHand]);
         if (nullify) {
             assignment = new ApexAssignment(apexLeftHand, 'null');
-            // results.push(`${leftHand} = null;`);
         } else {
             const rightHand: string = a.field[0];
             const variableName = extractObjectOfExpression(ref);
-            // const apexVariableRef = new ApexVariable(variableName);
             const apexVariableRef = knowledge.builder.getMainClass().getVariable(variableName);
             const apexRightHand = new ApexRightHand(`${ref}.${rightHand}`, [apexVariableRef]);
             assignment = new ApexAssignment(apexLeftHand, apexRightHand);
-            // results.push(`${leftHand} = ${ref}.${rightHand};`);
         }
 
         results.push(assignment);

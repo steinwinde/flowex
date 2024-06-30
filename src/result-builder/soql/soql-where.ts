@@ -48,7 +48,9 @@ export class SoqlWhere {
                     variableName = variableName.slice(0, index);
                 }
                 
-                this.variableNames.push(variableName);
+                if(!this.variableNames.includes(variableName)) {
+                    this.variableNames.push(variableName);
+                }
             }
     
             const oper: string = OPERATOR_TRANSLATIONS[filter.operator[0]];

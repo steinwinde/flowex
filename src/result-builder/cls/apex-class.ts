@@ -84,11 +84,17 @@ export abstract class ApexClass {
     // - Variables set by the application to hold results temporarily, e.g. "l" in record lookups
     // - Maybe loop variables like i, j
     registerVariable(name: string): ApexVariable {
+        this.checkValidName(name);
         this.checkUnique(name);
 
         const variable = new ApexVariable(name, false);
         this.variables.push(variable);
         return variable;
+    }
+
+    private checkValidName(name: string): void {
+        if(/^[A-Z_a-z]+$/.test(name) && name.length > 0) return;
+        throw new Error('Variable name must contain letters only and must not be empty: ' + name);
     }
 
     // TODO: This is verifying the correctness of the code, not of the input data or anything else

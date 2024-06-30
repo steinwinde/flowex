@@ -20,9 +20,6 @@ export class BasicElementProcessor {
 
         // anything called from two points is marked as "must be method"
         node.targets = Targets.fromFlowNode(e, p);
-        // if (targets.hasTarget()) {
-        //     this.add2TargetNumbers(targets);
-        // }
 
         return node.name;
     }

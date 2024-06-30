@@ -1,3 +1,4 @@
+import { VAR_ITEM } from "../apex-variable.js";
 import { ApexSection } from "./apex-section.js";
 
 export class ApexFor extends ApexSection {
@@ -7,7 +8,7 @@ export class ApexFor extends ApexSection {
 
     // iteration over object items
     private itemName : null | string = null;
-    private itemObject = 'item';
+    private itemObject = VAR_ITEM;
     private itemNames : null | string = null;
 
     // iteration over Integers
