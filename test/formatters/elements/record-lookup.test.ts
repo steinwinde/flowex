@@ -32,6 +32,7 @@ export const flow: Flow = {
     screens: [],
     stages: [],
     start: [],
+    startElementReference: [],
     subflows: [],
     textTemplates: [],
     variables: [],
