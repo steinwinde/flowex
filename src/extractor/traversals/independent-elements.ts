@@ -8,11 +8,12 @@ import { BasicElementProcessor } from './basic-elements.js';
 import { Node } from "../../types/node.js";
 import { apexFor } from '../../result-builder/section/apex-for.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import { ApexVariable, VAR_ACTIVE_STAGES, VAR_CURRENT_STAGE } from '../../result-builder/apex-variable.js';
+import { ApexVariable, VAR_ACTIVE_STAGES, VAR_CURRENT_STAGE, VAR_FR, VAR_I, VAR_N, VAR_PICKLISTVAL, VAR_PLES, VAR_S } from '../../result-builder/apex-variable.js';
 import { ApexSectionLiteral } from '../../result-builder/section/apex-section-literal.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { METHOD_PREFIXES } from '../../result-builder/section/apex-method.js';
-import { ApexLeftHand, apexLeftHandFromLiteral } from '../../result-builder/section/apex-left-hand.js';
+import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
+// import { ApexLeftHand, apexLeftHandFromLiteral } from '../../result-builder/section/apex-left-hand.js';
 
 export class IndependentElementProcessor extends BasicElementProcessor {
     f: Flow;
@@ -55,8 +56,8 @@ export class IndependentElementProcessor extends BasicElementProcessor {
 
     private processDynamicChoiceSets(flowDyns: FlowDynamicChoiceSet[]): void {
         if (!flowDyns) return;
+        let i = 0;
         for (const e of flowDyns) {
-            // this.knowledge.source2element.set(e.name[0], e);
             const node = new Node(e);
             this.knowledge.name2node.set(node.name, node);
             if (e.collectionReference) {
@@ -73,9 +74,8 @@ export class IndependentElementProcessor extends BasicElementProcessor {
                 this.addQueryObject2fields(obj + '.' + valueField);
                 this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType('String').registerIsCollection();
             } else if (e.picklistObject) {
-                this.processDynamicChoiceSetsForPicklistObject(e);
+                this.processDynamicChoiceSetsForPicklistObject(e, i++);
             } else {
-                const name: string = e.name[0];
                 // required
                 const obj: string = e.object[0];
                 this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType(obj).registerIsCollection();
@@ -213,7 +213,15 @@ export class IndependentElementProcessor extends BasicElementProcessor {
     }
 
     // TODO: Should probably be moved to a separate file, because it's generating considerable Apex already
-    private processDynamicChoiceSetsForPicklistObject(e: FlowDynamicChoiceSet): void {
+    private processDynamicChoiceSetsForPicklistObject(e: FlowDynamicChoiceSet, i: number): void {
+        // TODO: This is the ugly solution of the problem "multiple dynamic choice sets exist"
+        const varN = VAR_N + i;
+        const varI = VAR_I + i;
+        const varS = VAR_S + i;
+        const varPickListVal = VAR_PICKLISTVAL + i;
+        const varFr = VAR_FR + i;
+        const varPles = VAR_PLES + i;
+
         const name: string = e.name[0];
         const apexMethod = this.knowledge.builder.getMainClass().registerMethod(e, METHOD_PREFIXES.METHOD_PREFIX_POPULATE, name);
 
@@ -229,35 +237,39 @@ export class IndependentElementProcessor extends BasicElementProcessor {
 // `;
             const sortOrder: string = e.sortOrder[0];
             if (sortOrder === 'Desc') {
-                const leftHandN = apexLeftHandFromLiteral('Integer', 'n');
+                const apexVariableI = this.knowledge.builder.getMainClass().registerVariable(varI).registerType('Integer').registerLocal(apexMethod);
+                const apexVariableN = this.knowledge.builder.getMainClass().registerVariable(varN).registerType('Integer');
+                const apexVariableS = this.knowledge.builder.getMainClass().registerVariable(varS).registerType('String');
+
+                const leftHandN = new ApexLeftHand(`Integer ${varN}`, [apexVariableN]);
+                // const leftHandN = apexLeftHandFromLiteral('Integer', varN);
                 const apexAssignmentZero = new ApexAssignment(leftHandN, `${name}.size()`);
-                const leftHandS = apexLeftHandFromLiteral('String', 's');
-                const apexAssignmentOne = new ApexAssignment(leftHandS, `${name}[i]`);
-                const apexAssignmentTwo = new ApexAssignment(`${name}[i]`, `${name}[n-i-1]`);
-            const apexVariableS = new ApexVariable('s');
-            const apexAssignmentThree = new ApexAssignment(`${name}[n-i-1]`, 's');
+                const leftHandS = new ApexLeftHand(`String ${varS}`, [apexVariableS]);
+                // const leftHandS = apexLeftHandFromLiteral('String', varS);
+                const apexAssignmentOne = new ApexAssignment(leftHandS, `${name}[${varI}]`);
+                const apexAssignmentTwo = new ApexAssignment(`${name}[${varI}]`, `${name}[n-${varI}-1]`);
+            const apexAssignmentThree = new ApexAssignment(`${name}[${varN}-${varI}-1]`, varS);
 //                 const body = `String s = ${name}[i];
 // ${name}[i] = ${name}[n-i-1];
 // ${name}[n-i-1] = s;`;
                 const apexSectionDesc = new ApexSection().addSections([apexAssignmentOne, apexAssignmentTwo, apexAssignmentThree]);
-                const apexForStatement = apexFor().lt('n/2').set(apexSectionDesc);
+                const apexForStatement = apexFor().lt(varN + '/2').set(apexSectionDesc);
                 // sortBlock += apexForStatement.build();
                 apexSection.addSections([apexAssignmentZero, apexForStatement]);
             }
         }
 
-        const apexVariablePickList = new ApexVariable('pickListVal');
-        const bodyFor = `${name}.add(pickListVal.getLabel());`;
-        const apexSectionAdd = new ApexSectionLiteral(bodyFor).registerVariable(apexVariablePickList); 
-        const apexForStatement = apexFor().item('Schema.PicklistEntry').itemInstance('pickListVal').items('ples').set(apexSectionAdd);
+        const apexVariablePickList = this.knowledge.builder.getMainClass().registerVariable(varPickListVal).registerType('String');
+        const apexVariableFr = this.knowledge.builder.getMainClass().registerVariable(varFr).registerType('Schema.DescribeFieldResult');
+        const apexVariablePles = this.knowledge.builder.getMainClass().registerVariable(varPles).registerType('Schema.PicklistEntry').registerIsCollection();
 
-        const apexVariableFr = new ApexVariable('fr');
-        const apexVariableObj = new ApexVariable(obj);
-        const apexAssignFirstLine = new ApexSectionLiteral(`Schema.DescribeFieldResult fr = ${obj}.${picklistField}.getDescribe();`)
-            .registerVariable(apexVariableFr)
-            .registerVariable(apexVariableObj);
-        const apexVariablePles = new ApexVariable('ples');
-        const apexAssignSecondLine = new ApexSectionLiteral('List<Schema.PicklistEntry> ples = fr.getPicklistValues();')
+        const bodyFor = `${name}.add(${varPickListVal}.getLabel());`;
+        const apexSectionAdd = new ApexSectionLiteral(bodyFor).registerVariable(apexVariablePickList); 
+        const apexForStatement = apexFor().item('Schema.PicklistEntry').itemInstance(varPickListVal).items(varPles).set(apexSectionAdd);
+        
+        const apexAssignFirstLine = new ApexSectionLiteral(`Schema.DescribeFieldResult ${varFr} = ${obj}.${picklistField}.getDescribe();`)
+            .registerVariable(apexVariableFr);
+        const apexAssignSecondLine = new ApexSectionLiteral('List<Schema.PicklistEntry> ' + varPles + ' = ' + varFr + '.getPicklistValues();')
             .registerVariable(apexVariablePles);
         const apexMethodBody = new ApexSection().addSections([apexAssignFirstLine, apexAssignSecondLine, apexForStatement]);
         apexMethod.registerBody(apexMethodBody);

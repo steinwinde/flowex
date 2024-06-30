@@ -93,7 +93,7 @@ export abstract class ApexClass {
     }
 
     private checkValidName(name: string): void {
-        if(/^[A-Z_a-z]+$/.test(name) && name.length > 0) return;
+        if(/^\w+$/.test(name) && name.length > 0) return;
         throw new Error('Variable name must contain letters only and must not be empty: ' + name);
     }
 

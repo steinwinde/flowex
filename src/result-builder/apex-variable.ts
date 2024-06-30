@@ -17,9 +17,13 @@ export const VAR_L = 'l';
 export const VAR_I = 'i';
 export const VAR_N = 'n';
 export const VAR_S = 's';
+export const VAR_PICKLISTVAL = 'pickListVal';
+export const VAR_PLES = 'ples';
+export const VAR_FR = 'fr';
 
-// TODO: not sure we need this or should even use it; it's also not up-to-date
-export type VAR = typeof VAR_ACTIVE_STAGES | typeof VAR_CURRENT_STAGE | typeof VAR_I | typeof VAR_N | typeof VAR_RECORD | typeof VAR_RESULT | typeof VAR_S;
+// TODO: not sure we need this or should even use it
+export type VAR = typeof VAR_ACTIVE_STAGES | typeof VAR_CURRENT_STAGE | typeof VAR_FR | typeof VAR_I | typeof VAR_ITEM | typeof VAR_L | typeof VAR_N
+    | typeof VAR_PICKLISTVAL | typeof VAR_PLES | typeof VAR_RECORD | typeof VAR_RECORD_PRIOR | typeof VAR_RESULT | typeof VAR_S | typeof VAR_WRAPPER_LIST;
 
 // anything not in the list of Apex types is considered object
 export type TYPE_LITERAL_APEX = 'Blob' | 'Boolean' | 'Date' | 'DateTime' | 'Decimal' | 'Double' | 'Id' | 'Integer' | 'Long' | 'String' | 'Time';
@@ -260,9 +264,9 @@ export function apexVariableFromResourceName(resourceName: string): ApexVariable
     return apexVariable;
 }
 
-export function apexVariableFromLiteral(apexTypeLiteral : TYPE_LITERAL_APEX, apexVariableName : VAR) : ApexVariable {
-    return new ApexVariable(apexTypeLiteral).registerSpecial(apexVariableName).registerType(apexTypeLiteral);
-}
+// export function apexVariableFromLiteral(apexTypeLiteral : TYPE_LITERAL_APEX, apexVariableName : VAR) : ApexVariable {
+//     return new ApexVariable(apexTypeLiteral).registerSpecial(apexVariableName).registerType(apexTypeLiteral);
+// }
 
 function assertApexVariableDefined(apexVariable: ApexVariable | undefined): asserts apexVariable {
     if(apexVariable === undefined) {
