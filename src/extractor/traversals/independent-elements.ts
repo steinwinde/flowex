@@ -140,7 +140,8 @@ export class IndependentElementProcessor extends BasicElementProcessor {
     }
 
     // Text Templates are different from Constants, Variables and Formulas in many respects, e.g.:
-    // - User can enter multi-line text, which is converted to a single line of HTML by the UI.
+    // - User can enter multi-line text, which is converted to a single line of HTML by the UI - when I test it. However, 
+    //   I have seen multi-line text in examples from client orgs (always with single line feeds, no carriage returns).
     // - Text can contain formula expressions.
     // - User can add images to the template, which are then stored separately from the Flow and referred to
     //   like this:
@@ -148,7 +149,11 @@ export class IndependentElementProcessor extends BasicElementProcessor {
     private processTextTemplates(flowTextTemplates: FlowTextTemplate[]): void {
         if (!flowTextTemplates) return;
         for (const e of flowTextTemplates) {
-            const esc = "'" + e.text[0].replace('\\', '\\\\').replace('\'', '\\\'') + "'";
+            const esc = "'" + e.text[0]
+                    .replaceAll('\\', '\\\\')
+                    .replaceAll('\'', '\\\'')
+                    .replaceAll('\n', '\\n') 
+                + "'";
             this.knowledge.builder.getMainClass().registerVariableBasedOnFlowElement(e).registerType('String').registerRightHand(esc);
         }
     }
