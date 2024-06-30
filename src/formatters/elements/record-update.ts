@@ -78,7 +78,10 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     //    has filterLogic, filters; inputAssignments for the assignments; object (NO inputReference)
     //    Requires to load a list of unrelated objects, which the flow can't refer to later. Separate method!
     const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic);
-    const whereVariables = soqlWhere.getVariableNames().map(name => new ApexVariable(name));
+    const whereVariables = soqlWhere.getVariableNames().map( 
+        // name => new ApexVariable(name)
+        name => knowledge.builder.getMainClass().getVariable(name)
+    );
     const where: string = soqlWhere.build();
     const obj: string = flowElem.object[0];
     knowledge.builder.getMainClass().registerVariable(VAR_ITEM)
@@ -91,12 +94,12 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     const soqlStatement = soql().select('Id').from(obj).where(where).build();
     const apexVariableL = knowledge.builder.getMainClass().registerVariable(VAR_L)
         .registerType(obj).registerIsCollection().registerLocal(apexMethod);
-    const leftHand = new ApexLeftHand(`List<${obj}> l`, [apexVariableL]);
+    const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariableL]);
     const rightHand = new ApexRightHand(soqlStatement, whereVariables);
     const assignmentForList = new ApexAssignment(leftHand, rightHand);
     const apexForExpression = apexFor().item(obj).itemInstance(VAR_ITEM).items(VAR_L).set(assignments);
     const apexVariable = new ApexVariable(VAR_L).registerType(obj).registerIsCollection();
-    const updateStatement = new ApexSectionLiteral('update l;').registerVariable(apexVariable);
+    const updateStatement = new ApexSectionLiteral(`update ${VAR_L};`).registerVariable(apexVariable);
     const apexSection = new ApexSection()
         .addSection(assignmentForList)
         .addSection(apexForExpression).
