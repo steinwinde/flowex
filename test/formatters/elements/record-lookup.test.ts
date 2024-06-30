@@ -49,7 +49,9 @@ describe('getRecordLookups', () => {
 
     beforeEach(() => {
         globalAny.NL = '\n';
-        globalAny.knowledge = new Knowledge(flow, VERSION);
+        globalAny.knowledge = new Knowledge(flow, VERSION, true);
+        globalAny.knowledge.builder.getMainClass().registerVariable('record').registerType('Account');
+        globalAny.knowledge.builder.getMainClass().registerVariable('Get_Children_A').registerType('Contact');
     });
 
     const flowElem: FlowRecordLookup = {
@@ -70,7 +72,7 @@ describe('getRecordLookups', () => {
     };
 
     it('Option1 Only the first record, Automatically store all fields', () => {
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         let expected = 'Get_Children_A = getContact();';
         equal(actual, expected);
         // const methods = globalAny.knowledge.programmer.getMethods();
@@ -86,7 +88,7 @@ return [SELECT Id FROM Contact WHERE AccountId = :record.Id LIMIT 1] ?? null;
     it('Option2 Only the first record, Choose fields and let Salesforce do the rest', () => {
         flowElem.queriedFields = ['Id', 'Birthdate'];
 
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         let expected = 'Get_Children_A = getContact();';
         equal(actual, expected);
         const methods = getMethods();
@@ -103,9 +105,9 @@ return [SELECT Id, Birthdate FROM Contact WHERE AccountId = :record.Id LIMIT 1] 
         flowElem.getFirstRecordOnly = undefined;
         flowElem.outputReference = ['Get_Children_A'];
         flowElem.storeOutputAutomatically = ['false'];
-        globalAny.knowledge.var2type.set('Get_Children_A', 'Contact');
+        
 
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         let expected = 'populateContact();';
         equal(actual, expected);
         const methods = getMethods();
@@ -127,9 +129,8 @@ Get_Children_A.Department = l[0].Department;
         flowElem.outputReference = ['Get_Children_A'];
         flowElem.storeOutputAutomatically = undefined;
         flowElem.assignNullValuesIfNoRecordsFound = ['true'];
-        globalAny.knowledge.var2type.set('Get_Children_A', 'Contact');
 
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         let expected = 'populateContact();';
         equal(actual, expected);
         const methods = getMethods();
@@ -153,9 +154,9 @@ Get_Children_A.Department = null;
         flowElem.outputReference = undefined;
         flowElem.assignNullValuesIfNoRecordsFound = ['true'];
         flowElem.outputAssignments = [{assignToReference: ['MyDepartment'], field: ['Department']}];
-        globalAny.knowledge.var2type.set('Get_Children_A', 'Contact');
+        globalAny.knowledge.builder.getMainClass().registerVariable('MyDepartment').registerType('String');
 
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         let expected = 'populateContact();';
         equal(actual, expected);
         const methods = getMethods();

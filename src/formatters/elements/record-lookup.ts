@@ -44,7 +44,7 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
 
     const ref: string | undefined = flowElem.outputReference ? flowElem.outputReference[0] : undefined;
 
-    const firstRecordOnly = getFirstRecordOnly(flowElem, knowledge.var2type, ref);
+    const firstRecordOnly = getFirstRecordOnly(flowElem, ref);
     const [soqlStatement, soqlWhereApexVariablesByName] = getSoqlStatement(flowElem, obj, firstRecordOnly);
     const soqlWhereApexVariables = soqlWhereApexVariablesByName.map(e => knowledge.builder.getMainClass().getVariable(e.getName()));
 
@@ -205,18 +205,18 @@ function getFields(flowElem: FlowRecordLookup, objects2Fields: Map<string, strin
 // Note also:
 // - outputAssignments does only exist for single records, can't work for more than one.
 // - storeOutputAutomatically exists for multi-record too.
-function getFirstRecordOnly(flowElem: FlowRecordLookup, var2type: Map<string, Variable>, ref: string | undefined) : boolean {
+function getFirstRecordOnly(flowElem: FlowRecordLookup, ref: string | undefined) : boolean {
     if (flowElem.outputAssignments) {
         return true;
     }
 
     const storeOutput: boolean = (Boolean(flowElem.storeOutputAutomatically) && flowElem.storeOutputAutomatically![0] === 'true');
     let f = false;
+    // eslint-disable-next-line unicorn/prefer-ternary
     if (storeOutput) {
         f = (Boolean(flowElem.getFirstRecordOnly) && flowElem.getFirstRecordOnly![0] === 'true');
     } else {
-        const variableInfo = var2type.get(ref!)!;
-        f = !variableInfo.isCollection;
+        f = !knowledge.builder.getMainClass().getVariable(ref!).isCollectionVariable();
     }
 
     return f;

@@ -6,6 +6,9 @@ import {getRecordLookups} from '../../../src/formatters/elements/record-lookup.j
 import {FlowRecordLookup} from '../../../src/types/metadata.js';
 import {flow, getMethods} from './record-lookup.test.js';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const globalAny:any = global;
+
 // this tests the three GetRecord cases for "How Many Records to Store": "All records"
 
 describe('getRecordLookups "All records"', () => {
@@ -27,13 +30,14 @@ describe('getRecordLookups "All records"', () => {
         storeOutputAutomatically: ['true'],
     };
 
-    // beforeEach(function () {
-    //     knowledge = new Knowledge(flow, VERSION);
-    // });
+    beforeEach(() => {
+        globalAny.knowledge = new Knowledge(flow, VERSION, true);
+        globalAny.knowledge.builder.getMainClass().registerVariable('Get_Children_A').registerType('Contact');
+        globalAny.knowledge.builder.getMainClass().registerVariable('Get_Children_E').registerType('Contact');
+    });
 
     it('AA All records, Automatically store all fields', () => {
-        global.knowledge = new Knowledge(flow, VERSION);
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         const expected = 'Get_Children_A = [SELECT Id FROM Contact WHERE AssistantName = \'Felix\'];';
         const methods = getMethods();
         equal(actual, expected);
@@ -41,10 +45,9 @@ describe('getRecordLookups "All records"', () => {
     });
 
     it('BB All records, Automatically store all fields, Need fields later', () => {
-        global.knowledge = new Knowledge(flow, VERSION);
         // when this is chosen, we limit the fields to those that are used by other elements
         global.knowledge.objects2Fields.set('Contact', ['FirstName', 'LastName']);
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         const expected = 'Get_Children_A = [SELECT FirstName, LastName FROM Contact WHERE AssistantName = \'Felix\'];';
         const methods = getMethods();
         equal(actual, expected);
@@ -53,8 +56,7 @@ describe('getRecordLookups "All records"', () => {
 
     it('CC All records, Choose fields and let Salesforce do the rest', () => {
         flowElem.queriedFields = ['Id', 'AssistantName'];
-        global.knowledge = new Knowledge(flow, VERSION);
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         const expected = 'Get_Children_A = [SELECT Id, AssistantName FROM Contact WHERE AssistantName = \'Felix\'];';
         const methods = getMethods();
         equal(actual, expected);
@@ -64,8 +66,7 @@ describe('getRecordLookups "All records"', () => {
     it('DD All records, Choose fields and assign variables (advanced)', () => {
         flowElem.queriedFields = ['Id', 'CleanStatus', 'Birthdate'];
         flowElem.outputReference = ['Get_Children_E'];
-        global.knowledge = new Knowledge(flow, VERSION);
-        const actual: string = getRecordLookups(flowElem);
+        const actual: string = getRecordLookups(flowElem).build();
         const methods = getMethods();
         equal(methods.length, 0);
         const expected = 'Get_Children_E = [SELECT Id, CleanStatus, Birthdate FROM Contact WHERE AssistantName = \'Felix\'];';

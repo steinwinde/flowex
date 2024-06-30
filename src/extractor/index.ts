@@ -46,7 +46,7 @@ export class Knowledge {
     public choices : Map<string, FlowChoice> = new Map<string, FlowChoice>();
 
     /** Apex class builder */
-    public builder: Builder;
+    public readonly builder: Builder;
 
     constructor(flow: Flow, version: null | string, globalVariables: boolean) {
 
