@@ -2,7 +2,8 @@ import {Knowledge} from '../index.js';
 import {ApexDataType} from '../../formatters/translators/data-type-translator.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
 import {Flow, FlowAssignment, FlowCollectionProcessor, FlowCustomError, FlowDecision, FlowElement, FlowElementReferenceOrValue, 
-    FlowFormula, FlowLoop, FlowNode, FlowRecordCreate, FlowRecordLookup, FlowStart, FlowSubflow} 
+    FlowFormula, FlowLoop, FlowNode, FlowRecordCreate, FlowRecordLookup, FlowStart, FlowSubflow,
+    FlowWait} 
     from '../../types/metadata.js';
 import {MyFlowElementReferenceOrValue} from '../../types/metadata-simple.js';
 import * as utils from '../utils.js';
@@ -26,6 +27,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
 
     run() : void {
         this.processStart(this.f.start || this.f.startElementReference);
+        this.processWaits(this.f.waits);
         this.processDecisions(this.f.decisions);
         this.processAssignments(this.f.assignments);
         this.processSimpleElements(this.f.recordDeletes, 'recordDeletes');
@@ -254,6 +256,13 @@ export class DependentElementProcessor extends BasicElementProcessor {
         if (!flowNodes) return;
         for (const e of flowNodes) {
             this.prepare4Retrieval(e, p);
+        }
+    }
+
+    private processWaits(flowWaits : FlowWait[]): void {
+        if (!flowWaits) return;
+        for (const e of flowWaits) {
+            this.prepare4Retrieval(e, 'waits');
         }
     }
 
