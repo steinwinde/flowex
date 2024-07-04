@@ -32,7 +32,7 @@ export default function getAction(flowElem: FlowActionCall) : BasicAction {
 function mapInputParameters(actionCalls: FlowActionCallInputParameter[]): Map<string, string> {
     const m: Map<string, string> = new Map<string, string>();
     for (const ac of actionCalls) {
-        const ref = getFlowElementReferenceOrValue(ac.value[0], false).v;
+        const ref = ac.value ? getFlowElementReferenceOrValue(ac.value[0], false).v : 'null';
         m.set(ac.name[0], ref);
     }
 
