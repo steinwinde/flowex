@@ -258,6 +258,11 @@ export class ApexVariable {
 }
 
 export function apexVariableFromResourceName(resourceName: string): ApexVariable {
+    // we allow callers to pass in a field name, e.g. 'Account.Name', but we only need the object name
+    if (resourceName.includes('.')) {
+        resourceName = resourceName.split('.')[0];
+    }
+
     const apexVariable = knowledge.builder.getMainClass().getVariable(resourceName);
     assertApexVariableDefined(apexVariable);
 

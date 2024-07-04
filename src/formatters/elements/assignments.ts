@@ -60,7 +60,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
         case 'Assign': { // "Equals"
             // TODO: not sure, if this is correct for picklist/multi-picklist, but for all others it is
             // TODO: not sure, if the right hand is a variable
-            const apexVariable = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+            const apexVariable = apexVariableFromResourceName(leftHand.v);
             const apexLeftHand = new ApexLeftHand(leftHand.v, [apexVariable]);
             const apexAssignment = new ApexAssignment(apexLeftHand, rightHand.v);
             return apexAssignment;
@@ -78,7 +78,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
 
         case 'AddItem': {
             // "AddItem" is only used by Multipicklists
-            const apexVariable = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+            const apexVariable = apexVariableFromResourceName(leftHand.v);
             const body = `${leftHand.v}.add(${rightHand.v});`;
             return new ApexSectionLiteral(body).registerVariable(apexVariable);
             // return `${leftHand.v}.add(${rightHand.v});`;
@@ -107,7 +107,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
         case 'AddAtStart': {
             // confirmed working with Text List (Test: "TextAssignments")
             // TODO: not sure, if right hand is variable
-            const apexVariable = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+            const apexVariable = apexVariableFromResourceName(leftHand.v);
             const body = `${leftHand.v}.add(0, ${rightHand.v});`;
             return new ApexSectionLiteral(body).registerVariable(apexVariable);
             // return `${leftHand.v}.add(0, ${rightHand.v});`;
@@ -115,7 +115,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
 
         case 'RemoveUncommon': {
             const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
-            const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+            const apexVariableLeftHand = apexVariableFromResourceName(leftHand.v);
             const apexVariableI = new ApexVariable('i').registerType('Integer');
 
             
@@ -130,7 +130,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
         }
 
         case 'AssignCount': {
-            const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+            const apexVariableLeftHand = apexVariableFromResourceName(leftHand.v);
             const apexLeftHand = new ApexLeftHand(leftHand.v, [apexVariableLeftHand]);
             const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
             const apexRightHand = new ApexRightHand(`${rightHand.v}.size()`, [apexVariableRightHand]);
@@ -140,7 +140,7 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
         }
 
         case 'RemovePosition': {
-            const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+            const apexVariableLeftHand = apexVariableFromResourceName(leftHand.v);
             return new ApexSectionLiteral(`${leftHand.v}.remove(${Number.parseInt(rightHand.v, 10)});`)
                 .registerVariable(apexVariableLeftHand);
             // confirmed working with Text List (Test: "TextAssignments")
@@ -154,14 +154,14 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
 }
 
 function getAdd(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElementReferenceOrValue, var2type: Map<string, Variable>) : ApexSection {
-    const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+    const apexVariableLeftHand = apexVariableFromResourceName(leftHand.v);
     const apexVariables = [apexVariableLeftHand];
     if (leftHand.t.startsWith('List<') || leftHand.t === 'Picklist' || leftHand.t === 'Stage') {
         if(rightHand.t === 'elementReference'
             // Because Stage variables are translated to their index, we don't need to track them
             && leftHand.v !== 'ActiveStages'
         ) {
-            const apexVariableRightHand = apexVariableFromResourceName(removeFieldFromReference(rightHand.v));
+            const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);
             apexVariables.push(apexVariableRightHand);
         }
         
@@ -197,7 +197,7 @@ function getAdd(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElemen
 }
 
 function getSubtract(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElementReferenceOrValue) : ApexSection {
-    const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+    const apexVariableLeftHand = apexVariableFromResourceName(leftHand.v);
     if (leftHand.t === 'Date') {
         const i = Number.parseInt(rightHand.v, 10);
         const apexSectionLiteral = new ApexSectionLiteral(`${leftHand.v}.addDays(-${i});`).registerVariable(apexVariableLeftHand);
@@ -214,7 +214,7 @@ function getSubtract(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowE
 
 function getRemoveBeforeFirst(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlowElementReferenceOrValue) : ApexFor {
     // Collection only (picklist, multi-picklist, $Flow.CurrentRecord)
-    const apexVariable = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+    const apexVariable = apexVariableFromResourceName(leftHand.v);
     // const bodyFor = `${leftHand.v}.remove(j);`;
     const bodyFor = new ApexSectionLiteral(`${leftHand.v}.remove(j);`).registerVariable(apexVariable);
     const forStatementInner = apexFor().j('i-1').gtEq('0').decrement().set(bodyFor);
@@ -231,7 +231,7 @@ function getRemoveFirst(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFl
     // Collection only (picklist, multi-picklist, $Flow.CurrentRecord)
     const condition = getCondition(leftHand, rightHand);
     const apexSectionLiteral = new ApexSectionLiteral(`${leftHand.v}.remove(i);`)
-        .registerVariables([apexVariableFromResourceName(removeFieldFromReference(leftHand.v)), new ApexVariable('i').registerType('Integer')]);
+        .registerVariables([apexVariableFromResourceName(leftHand.v), new ApexVariable('i').registerType('Integer')]);
     const apexSectionLiteralBreak = new ApexSectionLiteral('break;');
     // const body = `${leftHand.v}.remove(i);` + global.NL + 'break;';
     const apexSection = new ApexSection().addSection(apexSectionLiteral).addSection(apexSectionLiteralBreak);
@@ -244,7 +244,7 @@ function getRemoveAfterFirst(leftHand: MyFlowElementReferenceOrValue, rightHand:
     // Collection only (picklist, multi-picklist, $Flow.CurrentRecord)
     const condition = getCondition(leftHand, rightHand);
     const bodyInner = `${leftHand.v}.remove(j);`;
-    const apexSectionLiteral = new ApexSectionLiteral(bodyInner).registerVariable(apexVariableFromResourceName(removeFieldFromReference(leftHand.v)));
+    const apexSectionLiteral = new ApexSectionLiteral(bodyInner).registerVariable(apexVariableFromResourceName(leftHand.v));
     const forStatementInner = apexFor().j(`${leftHand.v}.size()-1`).gt('i').decrement().set(apexSectionLiteral);
     const apexSectionLiteralBreak = new ApexSectionLiteral('break;');
     // const body = `${forStatementInner.build()}` + global.NL + 'break;';
@@ -272,7 +272,7 @@ function getCondition(leftHand: MyFlowElementReferenceOrValue, rightHand: MyFlow
         body = `${leftHand.v}.get(i) == ${rightHand.v}`;
     }
 
-    const apexVariableLeftHand = apexVariableFromResourceName(removeFieldFromReference(leftHand.v));
+    const apexVariableLeftHand = apexVariableFromResourceName(leftHand.v);
     const apexVariables = [apexVariableLeftHand];
     if(rightHand.t === 'elementReference') {
         const apexVariableRightHand = apexVariableFromResourceName(rightHand.v);

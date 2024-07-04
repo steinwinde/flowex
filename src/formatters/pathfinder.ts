@@ -56,14 +56,8 @@ export class PathFinder {
             }
 
             this.setMethodOfNode(currentNodeName, apexMethod);
-            // const methodCall: {callLine: string, globalVar: string} = this.getMethodCall(currentNodeName, methodName);
-            // this.addReturnValueToGlobalVars(methodCall.globalVar);
-
             const apexMethodCall = new ApexMethodCall(apexMethod);
             return apexMethodCall;
-
-            // const codeSoFar: string = methodCall.callLine;
-            // return new ApexSection().addSection(codeSoFar);
         }
 
         this.setMethodOfNode(currentNodeName, parentApexMethod);
