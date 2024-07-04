@@ -1,7 +1,5 @@
 import { ApexMethod } from '../result-builder/section/apex-method.js';
 import {FlowElement, FlowStart} from '../types/metadata.js';
-import {Parameter} from '../types/parameter.js';
-import {Targets} from '../types/targets.js';
 import {ElementProcessor} from './element-processor.js';
 import {getStart} from './elements/start.js';
 import {Node, START_NODE_NAME} from '../types/node.js';
@@ -11,9 +9,10 @@ import { renderDecisions } from './pathfinders/pathfinder-decisions.js';
 import { renderLoops } from './pathfinders/pathfinder-loops.js';
 import { renderPlain } from './pathfinders/pathfinder-plain.js';
 import { renderWaits } from './pathfinders/pathfinder-waits.js';
+import { ApexTry } from '../result-builder/section/apex-try.js';
+import { MyFlowNodeWithFault } from '../types/metadata-simple.js';
 
 export class PathFinder {
-    public methodParameters: Map<string, Parameter[]> = new Map<string, Parameter[]>();
     public variables: string[] = [];
 
     private elementProcessor: ElementProcessor;
@@ -33,7 +32,8 @@ export class PathFinder {
         
         const apexMethod = knowledge.builder.getMainClass().registerMethod(node!.flowElement);
         // const body = this.processWithMethodOption(currentNodeName, apexMethod);
-        const methodBody: ApexSection | undefined = this.processWithDecisionAndLoop(currentNodeName, apexMethod);
+        const methodBody = this.processWithMethodOption(currentNodeName, apexMethod);
+        // const methodBody: ApexSection | undefined = this.processWithDecisionAndLoop(currentNodeName, apexMethod);
         apexMethod.registerBody(methodBody);
 
         // if(body !== undefined) {
@@ -75,6 +75,24 @@ export class PathFinder {
     private processWithDecisionAndLoop(currentNodeName: null | string, apexMethod : ApexMethod | null) : ApexSection | undefined {
         if (currentNodeName === null) return undefined;
         const flowType = knowledge.name2node.get(currentNodeName)?.type;
+
+        const HAVE_FAULT_CONNECTOR: string[] = ['actionCalls', 'recordCreates', 'recordDeletes', 'recordLookups', 'recordUpdates', 'waits'];
+        if (flowType && HAVE_FAULT_CONNECTOR.includes(flowType)) {
+            const flowElem: FlowElement | undefined = knowledge.name2node.get(currentNodeName)?.flowElement;
+            const elem = flowElem as MyFlowNodeWithFault;
+            if (elem.faultConnector) {
+                const apexSection = this.elementProcessor.getCodeUnit(flowElem!, flowType, apexMethod)!;
+                const tryBlock: ApexSection | undefined = renderPlain(currentNodeName, apexMethod, apexSection, this.processWithMethodOption.bind(this));
+                const catchBlock: ApexSection | undefined = this.processWithMethodOption(elem.faultConnector[0].targetReference[0], apexMethod);
+                const apexTry = new ApexTry().addTryBlock(tryBlock);
+                if(catchBlock) {
+                    apexTry.addCatchBlock(catchBlock);
+                }
+
+                return apexTry;
+            }
+        }
+
         if (flowType === 'decisions') {
             return renderDecisions(currentNodeName, apexMethod, this.processWithMethodOption.bind(this));
         }

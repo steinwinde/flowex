@@ -16,18 +16,15 @@ import { Variable } from '../types/variable.js';
 import { getCustomErrors } from './elements/custom-errors.js';
 import { ApexMethod } from '../result-builder/section/apex-method.js';
 import { ApexSection } from '../result-builder/section/apex-section.js';
-import { ApexTry } from '../result-builder/section/apex-try.js';
 import { ApexComment } from '../result-builder/section/apex-comment.js';
 import { ApexSectionLiteral } from '../result-builder/section/apex-section-literal.js';
 import { ApexVariable } from '../result-builder/apex-variable.js';
 import { getFlowElementReferenceOrValue } from './translators/reference-or-value-translator.js';
 
 export class ElementProcessor {
-    // private methodParameters: Map<string, Parameter[]>;
     private pf: PathFinder;
 
-    constructor(/* methodParameters: Map<string, Parameter[]> */ pf: PathFinder) {
-        // this.methodParameters = methodParameters;
+    constructor(pf: PathFinder) {
         this.pf = pf;
     }
 
@@ -87,20 +84,6 @@ export class ElementProcessor {
 
             default: {
                 throw new Error('Could not identify element: ' + elemType);
-            }
-        }
-
-        const HAVE_FAULT_CONNECTOR: string[] = ['actionCalls', 'recordCreates', 'recordDeletes', 'recordLookups', 'recordUpdates'];
-        if (HAVE_FAULT_CONNECTOR.includes(elemType)) {
-            const elem = flowElem as MyFlowNodeWithFault;
-            if (elem.faultConnector) {
-                const body: ApexSection | undefined = this.pf.processWithMethodOption(elem.faultConnector[0].targetReference[0], apexMethod);
-                const apexTry = new ApexTry().addTryBlock(mainPart);
-                if(body) {
-                    apexTry.addCatchBlock(body);
-                }
-
-                return apexTry;
             }
         }
 

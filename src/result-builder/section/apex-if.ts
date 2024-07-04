@@ -2,7 +2,6 @@ import { ApexComment } from "./apex-comment.js";
 import { ApexIfCondition } from "./apex-if-condition.js";
 import { ApexSection } from "./apex-section.js";
 import { ApexVariableInfo } from "../apex-variable-info.js";
-import { ApexVariable } from "../apex-variable.js";
 
 const NOTHING_TO_DO = new ApexComment('nothing to do');
 

@@ -21,10 +21,6 @@ export enum METHOD_PREFIXES {
 // This represents a section of the code that is called from two points and must be a method.
 export class ApexMethod extends ApexSection {
 
-    // TODO: this is to be replaced by the concept of ApexVariables
-    // private parameters = new Array<Parameter>();
-    private var2type = new Map<string, Variable>();
-
     // final name of the method; the name is adjusted by the ApexClass before the method is instantiated
     private readonly name: string;
     // e.g. "List<Account>", "void" or "String"
@@ -64,11 +60,6 @@ export class ApexMethod extends ApexSection {
     registerReturnType(returnType: string) : ApexMethod {
         this.returnType = returnType;
         return this;
-    }
-
-    // TODO: 2024: this appears to be poor workmanship
-    registerVar2Type(var2type: Map<string, Variable>): void {
-        this.var2type = var2type;
     }
 
     registerBody(body?: ApexSection): void {
