@@ -1,4 +1,4 @@
-import {PathFinder} from './pathfinder.js';
+import { PathFinder } from './pathfinder.js';
 
 const TAB_LENGTH = 4;
 

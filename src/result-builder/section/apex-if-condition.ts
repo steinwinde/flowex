@@ -6,7 +6,7 @@
 // TODO: This fuses in an ad hoc manner two very similar inputs for apexConditions: FlowRecordFilter and FlowCondition;
 // This should be merged properly.
 
-import {FlowCollectionProcessor, FlowCondition, FlowDecision, FlowRecordFilter, FlowRule} from '../../types/metadata.js';
+import {FlowCollectionProcessor, FlowCondition, FlowDecision, FlowRecordFilter, FlowRule, FlowWait, FlowWaitEvent} from '../../types/metadata.js';
 import {ApexReference} from './apex-reference.js';
 import {concatFilters} from '../../formatters/translators/query-filter.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
@@ -149,8 +149,9 @@ export class ApexIfCondition extends ApexSection {
         this.addVariable(apexVariableFromResourceName(name), VariableUse.Read);
     }
 
-    private getConditions(conditions: FlowCondition[], includeNullCheck: boolean) : string[] {
+    private getConditions(conditions: FlowCondition[] | undefined, includeNullCheck: boolean) : string[] {
         const ar: string[] = [];
+        if (conditions === undefined) return ar;
     
         let a = '';
         let b = '';
@@ -250,6 +251,11 @@ export class ApexIfCondition extends ApexSection {
 export function apexIfConditionFromFlowDecision(decision: FlowDecision, ruleNumber: number): ApexIfCondition {
     const rule :FlowRule = decision.rules[ruleNumber];
     const apexIfCondition = new ApexIfCondition().setFlowCondition(rule.conditionLogic[0], rule.conditions, true);
+    return apexIfCondition;
+}
+
+export function apexIfConditionFromWaitCondition(flowWait : FlowWaitEvent): ApexIfCondition {
+    const apexIfCondition = new ApexIfCondition().setFlowCondition(flowWait.conditionLogic[0], flowWait.conditions, true);
     return apexIfCondition;
 }
 

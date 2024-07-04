@@ -1,6 +1,6 @@
 import {FlowActionCall, FlowAssignment, FlowCollectionProcessor, FlowCustomError, FlowElement, FlowRecordCreate, FlowRecordDelete, FlowRecordLookup, 
     FlowRecordUpdate, FlowScreen, FlowSubflow, FlowWait} from '../types/metadata.js';
-import {MyFlowNodeWithFault} from '../types/metadata-simple.js';
+import {MyFlowElementReferenceOrValue, MyFlowNodeWithFault} from '../types/metadata-simple.js';
 import getAction from './actions/action-builder.js';
 import {getAssignments} from './elements/assignments.js';
 import {getRecordCreates} from './elements/record-create.js';
@@ -9,8 +9,7 @@ import {getRecordLookups} from './elements/record-lookup.js';
 import {getRecordUpdates} from './elements/record-update.js';
 import {getScreens} from './elements/screens.js';
 import {getSubflow} from './elements/subflow.js';
-import {getWaits} from './elements/waits.js';
-import {PathFinder} from './pathfinder.js';
+import { PathFinder } from './pathfinder.js';
 import {getFiltered} from './translators/collection-filter.js';
 import {generateSorter} from './translators/collection-sorter.js';
 import { Variable } from '../types/variable.js';
@@ -35,65 +34,60 @@ export class ElementProcessor {
     public getCodeUnit(flowElem: FlowElement, elemType: string | undefined, apexMethod : ApexMethod | null): ApexSection | undefined {
         let mainPart : ApexSection | undefined;
         switch (elemType) {
-        case undefined: {return undefined; }
-        case 'actionCalls': {
-            mainPart = this.getActionCalls(flowElem as FlowActionCall);
-            break;
-        }
+            case undefined: {return undefined; }
+            case 'actionCalls': {
+                mainPart = this.getActionCalls(flowElem as FlowActionCall);
+                break;
+            }
 
-        case 'assignments': {
-            mainPart = getAssignments(flowElem as FlowAssignment, knowledge.var2type);
-            break;
-        }
+            case 'assignments': {
+                mainPart = getAssignments(flowElem as FlowAssignment, knowledge.var2type);
+                break;
+            }
 
-        case 'collectionProcessors': {
-            mainPart = this.getCollectionProcessor(flowElem as FlowCollectionProcessor);
-            break;
-        }
+            case 'collectionProcessors': {
+                mainPart = this.getCollectionProcessor(flowElem as FlowCollectionProcessor);
+                break;
+            }
 
-        case 'customErrors': {
-            mainPart = getCustomErrors(flowElem as FlowCustomError);
-            break;
-        }
+            case 'customErrors': {
+                mainPart = getCustomErrors(flowElem as FlowCustomError);
+                break;
+            }
 
-        case 'recordCreates': {
-            mainPart = getRecordCreates(flowElem as FlowRecordCreate);
-            break;
-        }
+            case 'recordCreates': {
+                mainPart = getRecordCreates(flowElem as FlowRecordCreate);
+                break;
+            }
 
-        case 'recordDeletes': {
-            mainPart = getRecordDeletes(flowElem as FlowRecordDelete);
-            break;
-        }
+            case 'recordDeletes': {
+                mainPart = getRecordDeletes(flowElem as FlowRecordDelete);
+                break;
+            }
 
-        case 'recordLookups': {
-            mainPart = getRecordLookups(flowElem as FlowRecordLookup);
-            break;
-        }
+            case 'recordLookups': {
+                mainPart = getRecordLookups(flowElem as FlowRecordLookup);
+                break;
+            }
 
-        case 'recordUpdates': {
-            mainPart = getRecordUpdates(flowElem as FlowRecordUpdate);
-            break;
-        }
+            case 'recordUpdates': {
+                mainPart = getRecordUpdates(flowElem as FlowRecordUpdate);
+                break;
+            }
 
-        case 'screens': {
-            mainPart = getScreens(flowElem as FlowScreen);
-            break;
-        }
+            case 'screens': {
+                mainPart = getScreens(flowElem as FlowScreen);
+                break;
+            }
 
-        case 'subflows': {
-            mainPart = getSubflow(flowElem as FlowSubflow);
-            break;
-        }
+            case 'subflows': {
+                mainPart = getSubflow(flowElem as FlowSubflow);
+                break;
+            }
 
-        case 'waits': {
-            mainPart = getWaits(flowElem as FlowWait);
-            break;
-        }
-
-        default: {
-            throw new Error('Could not identify element: ' + elemType);
-        }
+            default: {
+                throw new Error('Could not identify element: ' + elemType);
+            }
         }
 
         const HAVE_FAULT_CONNECTOR: string[] = ['actionCalls', 'recordCreates', 'recordDeletes', 'recordLookups', 'recordUpdates'];
@@ -122,7 +116,9 @@ export class ElementProcessor {
         
         const args : Array<string> = new Array<string>();
         for(const param of flowActionCall.inputParameters) {
-            const referenceOrValue = getFlowElementReferenceOrValue(param.value[0], false);
+            const defaultFlowElementReferenceOrValue : MyFlowElementReferenceOrValue = {t: 'Object', v: 'null'};
+            const referenceOrValue : MyFlowElementReferenceOrValue
+                = param.value ? getFlowElementReferenceOrValue(param.value[0], false) : defaultFlowElementReferenceOrValue;
             // The key used in the Flow definition, at the same time the parameter name in the Apex method
             const parameterName = param.name[0];
             // The argument when calling the Apex method
@@ -130,10 +126,13 @@ export class ElementProcessor {
             // const beautifiedName: string = camelize(value.replace('.', ''), false);
             // const apexVariable = new ApexVariable(beautifiedName);
             const apexVariable = new ApexVariable(parameterName);
-            const apexType = action.getParameterTypes().get(parameterName);
+            let apexType = action.getParameterTypes().get(parameterName);
             if(apexType === undefined) {
-                throw new Error('No type found for parameter: ' + parameterName 
-                    + ' of action: ' + flowActionCall.actionName[0]);
+                // Throwing an Error would crash for all unknown types of Actions (note: not types of parameters of 
+                // Actions) prematurely
+                // throw new Error('No type found for parameter: ' + parameterName 
+                //     + ' of action: ' + flowActionCall.actionName[0]);
+                apexType = 'Object';
             }
 
             apexVariable.registerType(apexType).registerLocal(knowledge.builder.getMainClass().getLastMethod());

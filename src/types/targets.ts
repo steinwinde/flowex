@@ -1,5 +1,5 @@
 import { MyFlowNode } from "./metadata-simple.js";
-import { FlowDecision, FlowLoop, FlowNode } from "./metadata.js";
+import { FlowDecision, FlowLoop, FlowNode, FlowWait } from "./metadata.js";
 
 export class Targets {
 
@@ -12,33 +12,56 @@ export class Targets {
     static fromFlowNode(flowNode: FlowNode, p: string): Targets {
 
         const t: Targets = new Targets();
-        if (p === 'decisions') {
-            const fn : FlowDecision = flowNode as FlowDecision;
-            t.regular[0] = (fn.defaultConnector ? fn.defaultConnector[0].targetReference[0] : undefined);
-            for (let i = 0; i < fn.rules.length; i++) {
-                const rule = fn.rules[i];
-                if (rule.connector && rule.connector[0].targetReference) {
-                    t.regular[i + 1] = rule.connector[0].targetReference[0];
+        switch (p) {
+            case 'decisions': {
+                const fn : FlowDecision = flowNode as FlowDecision;
+                t.regular[0] = (fn.defaultConnector ? fn.defaultConnector[0].targetReference[0] : undefined);
+                for (let i = 0; i < fn.rules.length; i++) {
+                    const rule = fn.rules[i];
+                    if (rule.connector && rule.connector[0].targetReference) {
+                        t.regular[i + 1] = rule.connector[0].targetReference[0];
+                    }
                 }
-            }
-        } else if (p === 'loops') {
-            // loop itself has no fault connector
-            const fn : FlowLoop = flowNode as FlowLoop;
-            // first node in the loop (starting with "For Each")
-            t.regular[0] = fn.nextValueConnector[0].targetReference[0];
-            if (fn.noMoreValuesConnector) {
-                // "After Last" node configured for the loop
-                t.regular[1] = fn.noMoreValuesConnector[0].targetReference[0];
-            }
-        } else {
-        // e.g. recordCreates
-            const fn: MyFlowNode = flowNode as MyFlowNode;
-            if (fn.connector && fn.connector[0].targetReference) {
-                t.regular[0] = fn.connector[0].targetReference[0];
+                
+            break;
             }
 
-            if (fn.faultConnector && fn.faultConnector[0].targetReference) {
-                t.fault = fn.faultConnector[0].targetReference[0];
+            case 'loops': {
+                // loop itself has no fault connector
+                const fn : FlowLoop = flowNode as FlowLoop;
+                // first node in the loop (starting with "For Each")
+                t.regular[0] = fn.nextValueConnector[0].targetReference[0];
+                if (fn.noMoreValuesConnector) {
+                    // "After Last" node configured for the loop
+                    t.regular[1] = fn.noMoreValuesConnector[0].targetReference[0];
+                }
+            
+            break;
+            }
+
+            case 'waits': {
+                const fn : FlowWait = flowNode as FlowWait;
+                t.regular[0] = (fn.defaultConnector ? fn.defaultConnector[0].targetReference[0] : undefined);
+                for (let i = 0; i < fn.waitEvents.length; i++) {
+                    const waitEvent = fn.waitEvents[i];
+                    if (waitEvent.connector && waitEvent.connector[0].targetReference) {
+                        t.regular[i + 1] = waitEvent.connector[0].targetReference[0];
+                    }
+                }
+
+                break;
+            }
+
+            default: {
+            // e.g. recordCreates
+                const fn: MyFlowNode = flowNode as MyFlowNode;
+                if (fn.connector && fn.connector[0].targetReference) {
+                    t.regular[0] = fn.connector[0].targetReference[0];
+                }
+
+                if (fn.faultConnector && fn.faultConnector[0].targetReference) {
+                    t.fault = fn.faultConnector[0].targetReference[0];
+                }
             }
         }
 
