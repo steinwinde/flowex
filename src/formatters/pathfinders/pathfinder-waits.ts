@@ -1,9 +1,9 @@
 import { ApexComment } from "../../result-builder/section/apex-comment.js";
-import { apexIfConditionFromFlowDecision, apexIfConditionFromWaitCondition } from "../../result-builder/section/apex-if-condition.js";
+import { apexIfConditionFromWaitCondition } from "../../result-builder/section/apex-if-condition.js";
 import { ApexIf } from "../../result-builder/section/apex-if.js";
 import { ApexMethod } from "../../result-builder/section/apex-method.js";
 import { ApexSection } from "../../result-builder/section/apex-section.js";
-import { FlowDecision, FlowWait } from "../../types/metadata.js";
+import { FlowWait } from "../../types/metadata.js";
 import { Targets } from "../../types/targets.js";
 
 export function renderWaits(currentNodeName : string, apexMethod : ApexMethod | null, 
