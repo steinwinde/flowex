@@ -143,9 +143,21 @@ export class ApexMainClass extends ApexClass {
     }
 
     // registers name and type
-    registerVariableBasedOnFlowScreenField(flowScreenField: FlowScreenField): ApexVariable {
+    registerVariablesBasedOnFlowScreenField(flowScreenField: FlowScreenField): Array<ApexVariable> {
         const name = flowScreenField.name[0];
 
+        if(flowScreenField.fieldType[0] === 'RegionContainer' || flowScreenField.fieldType[0] === 'Region') {
+            // the flowScreenField is a container, i.e. a section with fields
+            const variables: Array<ApexVariable> = [];
+            for(const field of flowScreenField.fields) {
+                const variables = this.registerVariablesBasedOnFlowScreenField(field);
+                variables.push(...variables);
+            }
+
+            return variables;
+        }
+
+        // TODO: The method call ApexDataType.fromFlowScreenField() further down throws an Error, if the condition is true
         // only for FlowScreenField an inner class might be necessary
         if(flowScreenField.fieldType[0] === 'ComponentInstance' 
                 && flowScreenField.storeOutputAutomatically 
@@ -159,7 +171,7 @@ export class ApexMainClass extends ApexClass {
         const apexType = ApexDataType.fromFlowScreenField(flowScreenField);
         const variable = new ApexVariable(name, false).registerType(apexType.getResult());
         this.variables.push(variable);
-        return variable;
+        return [variable];
     }
 
     registerType(name: string): string {

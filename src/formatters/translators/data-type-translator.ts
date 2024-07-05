@@ -59,7 +59,11 @@ export class ApexDataType {
             return new ApexDataType('String');
         }
 
-        throw new Error('Unknown field type: ' + fieldType);
+        if(fieldType === 'ComponentChoice') {
+            // TODO: see Flow Contact_SaisieInterventions.flow-meta.xml
+        }
+
+        throw new Error('FlowScreen with unknown field type: ' + fieldType);
     }
 
     // https://developer.salesforce.com/docs/platform/lwc/guide/use-flow-data-types.html

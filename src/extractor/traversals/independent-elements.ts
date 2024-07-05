@@ -90,7 +90,7 @@ export class IndependentElementProcessor extends BasicElementProcessor {
             this.prepare4Retrieval(e, 'screens');
             if (e.fields) {
                 for (const field of e.fields) {
-                    this.knowledge.builder.getMainClass().registerVariableBasedOnFlowScreenField(field);
+                    this.knowledge.builder.getMainClass().registerVariablesBasedOnFlowScreenField(field);
                 }
             }
         }
