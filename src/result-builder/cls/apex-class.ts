@@ -43,6 +43,11 @@ export abstract class ApexClass {
     }
 
     getVariable(name: string): ApexVariable {
+        // we allow callers to pass in a field, e.g. 'myAccount.Name', but we only need the left part
+        if (name.includes('.')) {
+            name = name.split('.')[0];
+        }
+
         for(const variable of this.variables) {
             if(variable.getName() === name) {
                 return variable;
