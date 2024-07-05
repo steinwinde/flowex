@@ -18,8 +18,12 @@ export class BasicElementProcessor {
         this.knowledge.name2node.set(node.name, node);
         node.type = p;
 
-        // anything called from two points is marked as "must be method"
-        node.targets = Targets.fromFlowNode(e, p);
+        try {
+            // e.g. anything called from two points is marked as "must be method"
+            node.targets = Targets.fromFlowNode(e, p);
+        } catch(error : unknown) {
+            throw new Error(`The Flow element ${e.name[0]} is apparently not properly connected. Error: ${(error as Error).stack}`);
+        }
 
         return node.name;
     }
