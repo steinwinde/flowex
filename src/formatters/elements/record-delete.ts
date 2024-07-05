@@ -25,7 +25,10 @@ export function getRecordDeletes(flowElem: FlowRecordDelete): ApexSection {
     let variables = new Array<ApexVariable>();
     if (flowElem.filters) {
         const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic);
-        variables = soqlWhere.getVariableNames().map(name => new ApexVariable(name));
+        variables = soqlWhere.getVariableNames().map(
+            // name => new ApexVariable(name)
+            name => knowledge.builder.getMainClass().getVariable(name)
+        );
         where = soqlWhere.build();
     }
 
