@@ -15,3 +15,15 @@ notes*.txt
 yarn.lock
 /.github
 /.sfdx
+
+// Felix temporarily
+.eslintignore
+.eslintrc.json
+.prettierrc.json
+.vscode/
+bin/
+data/Waiting.flow-meta.xml
+documentation/
+emnall.ps1
+mochaall.ps1
+temp
