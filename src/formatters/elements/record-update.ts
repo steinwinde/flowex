@@ -13,6 +13,7 @@ import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
 import { METHOD_PREFIXES } from '../../result-builder/section/apex-method.js';
 import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
 import { ApexRightHand } from '../../result-builder/section/apex-right-hand.js';
+import { extractFilterVariables } from '../translators/query-filter.js';
 
 // in case of RecordBeforeSave, required inputReference ("$Record"), triggerTypes, assignments, but no updates
 export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | undefined {
@@ -77,12 +78,9 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     // c) "Specify conditions to identify records, and set fields individually" => Object, Filter Conditions and Field Values
     //    has filterLogic, filters; inputAssignments for the assignments; object (NO inputReference)
     //    Requires to load a list of unrelated objects, which the flow can't refer to later. Separate method!
-    const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic);
-    const whereVariables = soqlWhere.getVariableNames().map( 
-        // name => new ApexVariable(name)
-        name => knowledge.builder.getMainClass().getVariable(name)
-    );
-    const where: string = soqlWhere.build();
+    const whereVariables = extractFilterVariables(flowElem.filters);
+    const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic, whereVariables);
+    
     const obj: string = flowElem.object[0];
     knowledge.builder.getMainClass().registerVariable(VAR_ITEM)
         .registerType(obj)
@@ -91,11 +89,11 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
 
     const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, METHOD_PREFIXES.METHOD_PREFIX_UPDATE, 
             flowElem.name[0]);
-    const soqlStatement = soql().select('Id').from(obj).where(where).build();
+    const soqlStatement = soql().select('Id').from(obj).where(soqlWhere);
     const apexVariableL = knowledge.builder.getMainClass().registerVariable(VAR_L)
         .registerType(obj).registerIsCollection().registerLocal(apexMethod);
     const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariableL]);
-    const rightHand = new ApexRightHand(soqlStatement, whereVariables);
+    const rightHand = new ApexRightHand().setSoqlQuery(soqlStatement);
     const assignmentForList = new ApexAssignment(leftHand, rightHand);
     const apexForExpression = apexFor().item(obj).itemInstance(VAR_ITEM).items(VAR_L).set(assignments);
     const apexVariable = new ApexVariable(VAR_L).registerType(obj).registerIsCollection();

@@ -5,6 +5,7 @@ import { ApexComment } from '../../result-builder/section/apex-comment.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
 import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
 import { ApexVariable } from '../../result-builder/apex-variable.js';
+import { extractFilterVariables } from '../translators/query-filter.js';
 
 export function getScreens(flowElem: FlowScreen): ApexSection {
     const apexSection = new ApexSection();
@@ -23,7 +24,8 @@ export function getScreens(flowElem: FlowScreen): ApexSection {
                 }
 
                 if(!dyn.collectionReference && !dyn.picklistObject) {
-                    apexSection.addSection(new ApexComment(getQuery(field, dyn!)));
+                    // TODO: Don't we need to consider the field iterator here?
+                    apexSection.addSection(new ApexComment(getQuery(dyn!)));
                 } else {
                     apexSection.addSection(new ApexComment('... also based on List ' + name));
                 }
@@ -87,7 +89,7 @@ function getStub(field: FlowScreenField) : string {
     return 'null';
 }
 
-function getQuery(field: FlowScreenField, dyn: FlowDynamicChoiceSet) : string {
+function getQuery(dyn: FlowDynamicChoiceSet) : string {
     // Only one other case left: the FlowDynamicChoiceSet is in effect
     // a GetRecords element that does an implicit query whenever the screen is displayed,
     // see "Record Choice Set"
@@ -105,12 +107,10 @@ function getQuery(field: FlowScreenField, dyn: FlowDynamicChoiceSet) : string {
     }
 
     const soqlQuery = soql().select(fields).from(obj);
-    // let soqlWhereVariables = new Array<ApexVariable>();
     if(dyn.filters) {
-        const soqlWhere = new SoqlWhere(dyn.filters, dyn.filterLogic[0]);
-        // From what I can tell the variables are not needed, - we build a comment here
-        // soqlWhereVariables = soqlWhere.getVariableNames().map(name => new ApexVariable(name));
-        const where = soqlWhere.build();
+        const apexVariables = extractFilterVariables(dyn.filters);
+        const soqlWhere = new SoqlWhere(dyn.filters, dyn.filterLogic[0], apexVariables);
+        const where = soqlWhere;
         soqlQuery.where(where);
     }
 

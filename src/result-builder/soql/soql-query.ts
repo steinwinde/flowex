@@ -1,7 +1,10 @@
-export class SoqlQuery {
+import { ApexSectionLiteral } from "../section/apex-section-literal.js";
+import { ApexSection } from "../section/apex-section.js";
+
+export class SoqlQuery extends ApexSection {
     private fields = new Array<string>();
     private sObject: null | string = null;
-    private wherePart: null | string = null;
+    // private wherePart: null | string = null;
     private orderByFields = new Array<string>();
     private limitPart: null | number = null;
     private exposedField: null | string = null;
@@ -18,8 +21,14 @@ export class SoqlQuery {
         return this;
     }
 
-    where(wherePart: string) : SoqlQuery {
-        this.wherePart = wherePart;
+    where(wherePart: ApexSection | string) : SoqlQuery {
+        if(typeof wherePart === 'string') {
+            const apexSectionLiteral = new ApexSectionLiteral(wherePart);
+            super.addSection(apexSectionLiteral);
+        } else {
+            super.addSection(wherePart);
+        }
+
         return this;
     }
 
@@ -45,8 +54,11 @@ export class SoqlQuery {
 
     build(): string {
         let query = 'SELECT ' + this.fields.join(', ') + ' FROM ' + this.sObject;
-        if (this.wherePart) {
-            query += ' WHERE ' + this.wherePart;
+        const wherePart = super.build();
+        if (wherePart) {
+            // only part that is an ApexSection
+            // query += ' WHERE ' + this.wherePart;
+            query += ' WHERE ' + super.build();
         }
 
         if (this.orderByFields.length > 0) {

@@ -1,7 +1,6 @@
 import { ApexLeftHand } from "./apex-left-hand.js";
 import { ApexRightHand } from "./apex-right-hand.js";
 import { ApexSection } from "./apex-section.js";
-import { ApexVariableInfo } from "../apex-variable-info.js";
 
 export class ApexAssignment extends ApexSection {
 

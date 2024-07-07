@@ -12,6 +12,24 @@ export function esc(s: string) : string {
     return s;
 }
 
+export function strFormat(sar : Array<string>, separator : string) : string {
+    let result = sar[0];
+    const count = countOccurences(result);
+    for (let i = 1; i <= count; i++) {
+        result = result.replace('%s', sar[i]);
+    }
+
+    for (let i = 1+count; i < sar.length; i++) {
+        result += separator + sar[i];
+    }
+
+    return result;
+}
+
+export function countOccurences(s : string) : number {
+    return s.split('%s').length - 1;
+}
+
 // TODO: unused (but tested)
 export function escM(sar: string[]): string[] {
     return sar.map(e =>

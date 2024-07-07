@@ -1,18 +1,30 @@
 import { ApexVariable } from "../apex-variable.js";
+import { SoqlQuery } from "../soql/soql-query.js";
 import { ApexSection, VariableUse } from "./apex-section.js";
 
 export class ApexRightHand extends ApexSection {
-    private rightHand: string;
+    private rightHand: string = '';
 
-    constructor(rightHand: string, apexVariables: Array<ApexVariable>) {
+    // constructor();
+    constructor(rightHand?: string, apexVariables?: Array<ApexVariable>) {
         super();
-        this.rightHand = rightHand;
-        for(const apexVariable of apexVariables) {
-            this.addVariable(apexVariable, VariableUse.Read);
+        if(rightHand) {
+            this.rightHand = rightHand;
+            if(apexVariables) {
+                for(const apexVariable of apexVariables) {
+                    this.addVariable(apexVariable, VariableUse.Read);
+                }
+            }
         }
     }
 
+    setSoqlQuery(soqlQuery : SoqlQuery) : ApexRightHand {
+        this.addSection(soqlQuery);
+        return this;
+    }
+
     build() : string {
-        return this.rightHand;
+        const sectionBuild = super.build();
+        return this.rightHand + sectionBuild;
     }
 }

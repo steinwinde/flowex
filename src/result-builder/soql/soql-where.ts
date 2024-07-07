@@ -3,6 +3,8 @@
 import { concatFilters } from "../../formatters/translators/query-filter.js";
 import { getFlowElementReferenceOrValue } from "../../formatters/translators/reference-or-value-translator.js";
 import { FlowRecordFilter } from "../../types/metadata.js";
+import { ApexVariable } from "../apex-variable.js";
+import { ApexSection, VariableUse } from "../section/apex-section.js";
 
 // TODO: why do I have fewer here than in the list of metadata?
 // see FlowRecordFilterOperators
@@ -15,12 +17,17 @@ const OPERATOR_TRANSLATIONS: Record<string, string> = {
     LessThanOrEqualTo: '<=',
 } as const;
 
-export class SoqlWhere {
+export class SoqlWhere extends ApexSection {
 
     private body: string = '';
-    private variableNames = new Array<string>();
+    // private variableNames = new Array<string>();
 
-    constructor(filters: FlowRecordFilter[], filterLogic: string) {
+    constructor(filters: FlowRecordFilter[], filterLogic: string, apexVariables: Array<ApexVariable>) {
+        super();
+        for (const apexVariable of apexVariables) {
+            this.addVariable(apexVariable, VariableUse.Read);
+        }
+        
         this.body = this.compileWhere(filters, filterLogic);
     }
 
@@ -28,32 +35,33 @@ export class SoqlWhere {
         return this.body;
     }
 
-    getVariableNames(): Array<string> {
-        return this.variableNames;
-    }
+    // getVariableNames(): Array<string> {
+    //     return this.variableNames;
+    // }
 
     private compileWhere(filters: FlowRecordFilter[], filterLogic: string): string {
         if (!filters) return '';
         const wheres: string[] = [];
         for (const filter of filters) {
-            const field = filter.field[0];
+            
             let val: string = getFlowElementReferenceOrValue(filter.value[0], true).v;
             
             // TODO: This is a hack to make it work for now
-            let variableName : null | string = null;
-            if(filter.value[0].elementReference) {
-                variableName = val.slice(1);
-                const index = variableName.indexOf('.');
-                if(index > -1) {
-                    variableName = variableName.slice(0, index);
-                }
+            // let variableName : null | string = null;
+            // if(filter.value[0].elementReference) {
+            //     variableName = val.slice(1);
+            //     const index = variableName.indexOf('.');
+            //     if(index > -1) {
+            //         variableName = variableName.slice(0, index);
+            //     }
                 
-                if(!this.variableNames.includes(variableName)) {
-                    this.variableNames.push(variableName);
-                }
-            }
+            //     if(!this.variableNames.includes(variableName)) {
+            //         this.variableNames.push(variableName);
+            //     }
+            // }
     
             const oper: string = OPERATOR_TRANSLATIONS[filter.operator[0]];
+            const field = filter.field[0];
             if (oper) {
                 wheres.push(String(field + ' ' + oper + ' ' + val));
             } else switch (filter.operator[0]) {

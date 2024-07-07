@@ -4,6 +4,7 @@ import { ApexSection } from '../../result-builder/section/apex-section.js';
 import { ApexVariable } from '../../result-builder/apex-variable.js';
 import { ApexSectionLiteral } from '../../result-builder/section/apex-section-literal.js';
 import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
+import { extractFilterVariables } from '../translators/query-filter.js';
 
 export function getRecordDeletes(flowElem: FlowRecordDelete): ApexSection {
     // 2 options:
@@ -24,16 +25,12 @@ export function getRecordDeletes(flowElem: FlowRecordDelete): ApexSection {
     let where = '';
     let variables = new Array<ApexVariable>();
     if (flowElem.filters) {
-        const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic);
-        variables = soqlWhere.getVariableNames().map(
-            // name => new ApexVariable(name)
-            name => knowledge.builder.getMainClass().getVariable(name)
-        );
+        variables = extractFilterVariables(flowElem.filters);
+        const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic, variables);
+        
         where = soqlWhere.build();
     }
 
-    const soqlStatement = soql().select('Id').from(obj).where(where).build();
-    // return `delete ${soqlStatement};`;
-    // TODO: Any variables in the WHERE are ignored
-    return new ApexSectionLiteral('delete ' + soqlStatement + ';').registerVariables(variables);
+    const soqlStatement = soql().select('Id').from(obj).where(where);
+    return new ApexSectionLiteral('delete %s;', [soqlStatement]);
 }

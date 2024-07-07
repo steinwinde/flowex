@@ -216,7 +216,7 @@ export class ApexMainClass extends ApexClass {
 
         // Any optional section of code that can't contain line breaks internally can assume to start after white space,
         // but must make sure to add a trailing white space (probably space) in the end.
-        // Any optional section of code that can contains line breaks internally can assume to start on a new line, but
+        // Any optional section of code that can contain line breaks internally can assume to start on a new line, but
         // must make sure to add a trailing line break in the end if having contents. Note how this.body and this.otherMethods
         // is inserted.
         return `${this.accessModifier} ${this.sharingLevel}class ${this.name} {

@@ -1,6 +1,6 @@
 import {FlowDynamicChoiceSet, FlowRecordLookup} from '../../types/metadata.js';
 import {translateAssignments4LookupAss, translateAssignments4LookupRef} from '../translators/assignment-translator.js';
-import {soql} from '../../result-builder/soql/soql-query.js';
+import {SoqlQuery, soql} from '../../result-builder/soql/soql-query.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
 import { ApexVariable, VAR_L, VAR_RECORD, VAR_RECORD_PRIOR, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
@@ -12,6 +12,7 @@ import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
 import { METHOD_PREFIXES } from '../../result-builder/section/apex-method.js';
 import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
 import { ApexRightHand } from '../../result-builder/section/apex-right-hand.js';
+import { extractFilterVariables } from '../translators/query-filter.js';
 
 // First choice: "How many records to store"
 // - Only the first record
@@ -44,20 +45,20 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
     const ref: string | undefined = flowElem.outputReference ? flowElem.outputReference[0] : undefined;
 
     const firstRecordOnly = getFirstRecordOnly(flowElem, ref);
-    const [soqlStatement, soqlWhereApexVariablesByName] = getSoqlStatement(flowElem, obj, firstRecordOnly);
+    const soqlStatement = getSoqlStatement(flowElem, obj, firstRecordOnly);
 
-    // TODO: This is not the right place; we probably should do this earlier
-    for(const apexVariable of soqlWhereApexVariablesByName) {
-        if(apexVariable.getName()===VAR_RECORD_PRIOR) {
-            const apexPrior = knowledge.builder.getMainClass().registerVariable(VAR_RECORD_PRIOR).registerConstructorVariable();
-            const apexType = knowledge.builder.getMainClass().getVariable(VAR_RECORD).getApexType();
-            if(apexType) {
-                apexPrior.registerType(apexType);
-            }
-        }
-    }
+    // // TODO: This is not the right place; we probably should do this earlier
+    // for(const apexVariable of soqlWhereApexVariablesByName) {
+    //     if(apexVariable.getName()===VAR_RECORD_PRIOR) {
+    //         const apexPrior = knowledge.builder.getMainClass().registerVariable(VAR_RECORD_PRIOR).registerConstructorVariable();
+    //         const apexType = knowledge.builder.getMainClass().getVariable(VAR_RECORD).getApexType();
+    //         if(apexType) {
+    //             apexPrior.registerType(apexType);
+    //         }
+    //     }
+    // }
 
-    const soqlWhereApexVariables = soqlWhereApexVariablesByName.map(e => knowledge.builder.getMainClass().getVariable(e.getName()));
+    // const soqlWhereApexVariables = soqlWhereApexVariablesByName.map(e => knowledge.builder.getMainClass().getVariable(e.getName()));
 
     const name: string = flowElem.name[0];
 
@@ -71,9 +72,7 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
             // the class figured out the final name
             const methodName = apexMethod.getName();
             // TODO: Due to the null coalescing operator this got so short we don't need a separate method anymore
-            const apexSection = new ApexSectionLiteral(`return ${soqlStatement} ?? null;`).registerVariables(soqlWhereApexVariables);
-//             const m = `return ${soqlStatement} ?? null;
-// `;
+            const apexSection = new ApexSectionLiteral('return %s ?? null;', [soqlStatement]);
             apexMethod.registerBody(apexSection);
             const apexVariable = knowledge.builder.getMainClass().getVariable(name)
             const apexLeftHand = new ApexLeftHand(name, [apexVariable]);
@@ -94,7 +93,7 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
             const apexMethod = knowledge.builder.getMainClass().registerMethod(flowElem, 
                     METHOD_PREFIXES.METHOD_PREFIX_POPULATE, obj);
             const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariable]);
-            const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
+            const rightHand = new ApexRightHand().setSoqlQuery(soqlStatement);
             const apexAssignment = new ApexAssignment(leftHand, rightHand);
             const apexIfCondition = apexIfConditionFromString(VAR_L + '.size()!=0', [apexVariable]);
             const apexIfExpression = apexIf().if(apexIfCondition, assignmentsSection);
@@ -122,7 +121,7 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
                     METHOD_PREFIXES.METHOD_PREFIX_POPULATE, obj);
 
             const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariable]);
-            const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
+            const rightHand = new ApexRightHand().setSoqlQuery(soqlStatement);
             const apexAssignment = new ApexAssignment(leftHand, rightHand);
             const apexIfCondition = apexIfConditionFromString(VAR_L + '.size()!=0', [apexVariable]);
             const apexIfExpression = apexIf().if(apexIfCondition, assignmentsSection);
@@ -143,7 +142,7 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
     if (flowElem.outputReference === undefined) {
         const apexVariable = apexVariableFromResourceName(name);
         const leftHand = new ApexLeftHand(name, [apexVariable]);
-        const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables])
+        const rightHand = new ApexRightHand().setSoqlQuery(soqlStatement);
         const result = new ApexAssignment(leftHand, rightHand);
         // option 5 & 6, only difference to option 1 & 2: getFirstRecordOnly==false
         // return `${name} = ${soqlStatement};`;
@@ -152,25 +151,24 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
 
     const apexVariable = apexVariableFromResourceName(flowElem.outputReference[0]);
     const leftHand = new ApexLeftHand(flowElem.outputReference[0], [apexVariable]);
-    const rightHand = new ApexRightHand(soqlStatement, [...soqlWhereApexVariables]);
+    const rightHand = new ApexRightHand().setSoqlQuery(soqlStatement);
     const result = new ApexAssignment(leftHand, rightHand);
     // return `${flowElem.outputReference[0]} = ${soqlStatement};`;
     return result;
 }
 
-function getSoqlStatement(flowElem: FlowRecordLookup, obj: string, firstRecordOnly: boolean) : [string, Array<ApexVariable>] {
+function getSoqlStatement(flowElem: FlowRecordLookup, obj: string, firstRecordOnly: boolean) : SoqlQuery {
     
     // TODO: write a test case that tests fields required by other elements...
     const fields = getFields(flowElem, knowledge.objects2Fields);
-    let wherePart = '';
     let soqlWhereVariables = new Array<ApexVariable>();
+    const query = soql().select(fields).from(obj);
+
     if(flowElem.filters) {
-        const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic);
-        soqlWhereVariables = soqlWhere.getVariableNames().map(e => new ApexVariable(e));
-        wherePart = soqlWhere.build();
+        soqlWhereVariables = extractFilterVariables(flowElem.filters);
+        const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic, soqlWhereVariables);
+        query.where(soqlWhere);
     }
-    
-    const query = soql().select(fields).from(obj).where(wherePart);
     
     // "filters" and "filterLogic" can both be missing
     const orderByField = getOrderByField(flowElem);
@@ -185,8 +183,7 @@ function getSoqlStatement(flowElem: FlowRecordLookup, obj: string, firstRecordOn
         query.limit(1);
     }
 
-    // TODO: This is an ugly quick fix
-    return [query.build(), soqlWhereVariables];
+    return query;
 }
 
 function getFields(flowElem: FlowRecordLookup, objects2Fields: Map<string, string[]>): string[] {

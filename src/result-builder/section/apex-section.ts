@@ -57,10 +57,10 @@ export class ApexSection {
     // }
 
     build(): string {
-        return this.buildSections();
+        return this.getBuiltSections().join(NL);
     }
 
-    private buildSections(): string {
+    protected getBuiltSections(): Array<string> {
         const sections : Array<string> = this.sections.map(section => {
             if (typeof section !== 'string') {
                 // executes the build method of the section or the extension build
@@ -70,7 +70,7 @@ export class ApexSection {
             return section;
         });
 
-        return sections.join(NL);
+        return sections;
     }
 
     // fully-fledged variables only (i.e. with type); e.g. in case of Apex methods there 
