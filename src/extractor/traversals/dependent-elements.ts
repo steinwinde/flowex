@@ -326,7 +326,6 @@ export class DependentElementProcessor extends BasicElementProcessor {
                         continue;
                     }
 
-                    const varNameInSubflow = ia.name[0];
                     const rightHand: MyFlowElementReferenceOrValue = getFlowElementReferenceOrValue(ia.value[0], false);
                     if(rightHand.t === 'elementReference') {
                         const apexVariableRightHand = this.knowledge.builder.getMainClass().getVariable(rightHand.v);
@@ -335,6 +334,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
                             throw new Error('The type of a right hand side of an input variable must not be undefined when processing subflows');
                         }
 
+                        const varNameInSubflow = ia.name[0];
                         const apexVariable = subflowClass.registerVariable(varNameInSubflow)
                             .registerType(rightHandSideApexVariableType)
                             .registerConstructorVariable();
