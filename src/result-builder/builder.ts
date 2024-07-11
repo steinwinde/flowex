@@ -13,18 +13,18 @@ export class Builder {
     private otherClasses = new Map<string, ApexClass>();
 
     // replaces the constructor calls to new Programmer() in the Knowledge class
-    static getInstance(name: string, version: null | string, globalVariables: boolean, flowRunInMode?: FlowRunInMode): Builder {
+    static getInstance(name: string, version: null | string, localVariables: boolean, flowRunInMode?: FlowRunInMode): Builder {
         Builder.version = version;
         if(name === 'Test' || this.instance === undefined) {
-            this.instance = new Builder(name, globalVariables, flowRunInMode);
+            this.instance = new Builder(name, localVariables, flowRunInMode);
         }
 
         return this.instance;
     }
 
-    private constructor(name: string, globalVariables: boolean, flowRunInMode?: FlowRunInMode) {
+    private constructor(name: string, localVariables: boolean, flowRunInMode?: FlowRunInMode) {
         name = Builder.getClassName(name);
-        this.mainClass = new ApexMainClass(name, globalVariables, flowRunInMode);
+        this.mainClass = new ApexMainClass(name, localVariables, flowRunInMode);
         if(Builder.version !== null) {
             this.mainClass.registerVersionComment(Builder.version);
         }

@@ -48,17 +48,17 @@ export class Knowledge {
     /** Apex class builder */
     public readonly builder: Builder;
 
-    constructor(flow: Flow, version: null | string, globalVariables: boolean) {
+    constructor(flow: Flow, version: null | string, localVariables: boolean) {
 
         // e.g. see test\formatters\elements\record-lookup.test.ts
         if (flow.label.length === 0 || flow.label[0] === 'Test') {
             // test run
-            this.builder = Builder.getInstance('Test', version, globalVariables);
+            this.builder = Builder.getInstance('Test', version, localVariables);
             return;
         }
 
         const runInMode = flow.runInMode ? flow.runInMode[0] : 'SystemModeWithSharing';
-        this.builder = Builder.getInstance(flow.label[0], version, globalVariables, runInMode);
+        this.builder = Builder.getInstance(flow.label[0], version, localVariables, runInMode);
 
         new IndependentElementProcessor(flow, this, this.queryObject2fields).run();
         new DependentElementProcessor(flow, this, this.queryObject2fields).run();

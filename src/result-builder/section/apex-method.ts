@@ -33,13 +33,13 @@ export class ApexMethod extends ApexSection {
     private callingMethods = new Set<ApexMethod>();
     // TODO: Is this really needed on method level?
     // make all variables class fields
-    private allVariablesAreClassFields = false;
+    private readonly localVariables;
 
-    constructor(name: string, nodeName: string, allVariablesAreClassFields: boolean) {
+    constructor(name: string, nodeName: string, localVariables: boolean) {
         super();
         this.name = name;
         this.nodeName = nodeName;
-        this.allVariablesAreClassFields = allVariablesAreClassFields;
+        this.localVariables = localVariables;
     }
 
     registerCallingMethod(callingMethod: ApexMethod): void {
@@ -78,7 +78,7 @@ export class ApexMethod extends ApexSection {
 
     build() : string {
         const methodBody = this.body ? (NL + this.body.build() + NL) : '';
-        // const params = this.allVariablesAreClassFields ? new Array<string>() : this.getParams();
+        // const params = !this.localVariables ? new Array<string>() : this.getParams();
         const params = this.getParams();
         const body = `private ${this.returnType} ${this.name}(${params}) {${methodBody}}`;
         // return super.buildWithBody(body);
@@ -86,14 +86,14 @@ export class ApexMethod extends ApexSection {
     }
 
     buildCall(argOverwrite?: string) : string {
-        // const args = this.allVariablesAreClassFields ? new Array<string>() : this.getArguments();
+        // const args = !this.localVariables ? new Array<string>() : this.getArguments();
         const args = argOverwrite ?? this.getArguments();
         return `${this.name}(${args});`;
     }
 
     resolveVariables(): Map<string, ApexVariableInfo> {
         if(this.body 
-            && !this.allVariablesAreClassFields
+            && this.localVariables
         ) {
             // this.addVariables(this.body.resolveVariables());
             return this.body.resolveVariables();
@@ -157,7 +157,7 @@ export class ApexMethod extends ApexSection {
     // ----------------------------------------------------------------------------------------------------------------
 
     private getParams() : string {
-        // if(this.allVariablesAreClassFields) return '';
+        // if(!this.localVariables) return '';
         return [...this.resolveVariables().values()].map(variable => 
             variable.getApexVariable().getApexType() + ' ' + variable.getApexVariable().getName()).join(', ');
     }
@@ -165,7 +165,7 @@ export class ApexMethod extends ApexSection {
     // This is in case we can use the same names in the caller and the parameters; this does not work e.g. for
     // literals
     private getArguments() : string {
-        // if(this.allVariablesAreClassFields) return '';
+        // if(!this.localVariables) return '';
         return [...this.resolveVariables().values()].map(variable =>
             variable.getApexVariable().getName()).join(', ');
     }

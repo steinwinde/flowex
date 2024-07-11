@@ -33,11 +33,11 @@ export class ApexMainClass extends ApexClass {
     // all inner classes
     private innerClassBlock: string = '';
 
-    private globalVariables: boolean;
+    private localVariables: boolean;
 
-    constructor(name: string, globalVariables: boolean, flowRunInMode?: FlowRunInMode) {
+    constructor(name: string, localVariables: boolean, flowRunInMode?: FlowRunInMode) {
         super(name, 'public', flowRunInMode);
-        this.globalVariables = globalVariables;
+        this.localVariables = localVariables;
     }
 
     addToBody(apexSection : ApexSection) : void {
@@ -96,7 +96,7 @@ export class ApexMainClass extends ApexClass {
         const beautifiedName = camelize(preliminaryName, false);
         const existingNames : Set<string> = new Set<string>(this.methods.keys());
         const name : string = getUniqueName(beautifiedName, existingNames);
-        const apexMethod = new ApexMethod(name, flowElementName, this.globalVariables);
+        const apexMethod = new ApexMethod(name, flowElementName, this.localVariables);
         this.methods.set(name, apexMethod);
         return apexMethod;
     }
@@ -271,7 +271,7 @@ ${this.otherMethods}}`;
         this.variables = this.getVariablesSorted();
         
         // TODO: Is the method scout of any use anyway?
-        if(!this.globalVariables) {
+        if(this.localVariables) {
             // new MethodScout(knowledge.name2node, knowledge.builder.getMainClass().getMethods()).run();
         }
 

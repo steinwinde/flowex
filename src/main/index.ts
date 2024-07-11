@@ -6,7 +6,7 @@ export const VERSION = '0.1.3';
 
 // eslint-disable-next-line max-params
 export default async function convert(pathToFlow: string, verbose: boolean, silent: boolean, 
-                            noversion: boolean, globalVariables: boolean) : Promise<string> {
+                            noversion: boolean, localVariables: boolean) : Promise<string> {
 
     global.NL = '\n';
     
@@ -20,7 +20,7 @@ export default async function convert(pathToFlow: string, verbose: boolean, sile
     const isTestRun = typeof global.it === 'function';
     const version = (noversion || isTestRun) ? null : VERSION;
 
-    const knowledge = new Knowledge(rawFlow, version, globalVariables);
+    const knowledge = new Knowledge(rawFlow, version, localVariables);
     global.knowledge = knowledge;
 
     const outputs: string[] = await getOverall();
