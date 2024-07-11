@@ -9,7 +9,7 @@ public with sharing class TrickyDecisions {
     }
     
     private void run() {
-        XYZ = '';
+        XYZ = null;
         if(Address == null) {
             Address = '42';
         }

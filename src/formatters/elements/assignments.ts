@@ -39,6 +39,8 @@ export function getAssignments(flowElem: FlowAssignment, var2type: Map<string, V
 
 function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, Variable>): ApexSection {
     const leftHand: MyFlowElementReferenceOrValue = getLeftHand(ai.assignToReference[0], var2type);
+    // @see https://trailhead.salesforce.com/trailblazer-community/feed/0D54S00000G4VUCSA3
+    // "If you leave a field or resource value blank, the value is null at run time. To treat a text value as an empty string instead of null, set it to {!$GlobalConstant.EmptyString}"
     let rightHand = {t: 'stringValue', v: 'null'};
     if (ai.value) {
         rightHand = getFlowElementReferenceOrValue(ai.value[0], false);
@@ -64,7 +66,6 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
             const apexLeftHand = new ApexLeftHand(leftHand.v, [apexVariable]);
             const apexAssignment = new ApexAssignment(apexLeftHand, rightHand.v);
             return apexAssignment;
-            // return `${leftHand.v} = ${rightHand.v};`;
         }
 
         case 'Add': {
