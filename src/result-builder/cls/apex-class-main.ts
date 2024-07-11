@@ -7,7 +7,7 @@ import { ApexTypeClass } from "./apex-class-type.js";
 import { ApexClass } from "./apex-class.js";
 import { ApexMethod, METHOD_PREFIXES, TOP_METHOD } from "../section/apex-method.js";
 import { ApexSection } from '../section/apex-section.js';
-import { ApexVariable, VAR_RECORD } from "../apex-variable.js";
+import { ApexVariable, VAR_RECORD, VAR_STAGES } from "../apex-variable.js";
 
 type ClassLevelObjectAttribute = {
     name: string,    // e.g. "required"
@@ -191,7 +191,7 @@ export class ApexMainClass extends ApexClass {
         stages = stages.map((s) => '\'' + s + '\'');
         const stagesString = stages.join(', ');
 
-        super.registerVariable('Stages')
+        super.registerVariable(VAR_STAGES)
             .registerType('String')
             .registerIsCollection()
             .registerConstant()

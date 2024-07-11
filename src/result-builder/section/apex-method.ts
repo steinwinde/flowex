@@ -1,4 +1,3 @@
-import { Variable } from '../../types/variable.js';
 import { ApexSection, VariableUse } from './apex-section.js';
 import { ApexVariableInfo } from "../apex-variable-info.js";
 import { ApexVariable } from '../apex-variable.js';
@@ -32,7 +31,7 @@ export class ApexMethod extends ApexSection {
     // methods that call this method and must be considered when compiling parameters
     private callingMethods = new Set<ApexMethod>();
     // TODO: Is this really needed on method level?
-    // make all variables class fields
+    // if false, make all variables class fields
     private readonly localVariables;
 
     constructor(name: string, nodeName: string, localVariables: boolean) {

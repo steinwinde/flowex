@@ -8,18 +8,21 @@ import { SoqlQuery } from "./soql/soql-query.js";
 export const VAR_RECORD = 'record';
 export const VAR_RECORD_PRIOR = 'recordPrior';
 export const VAR_CURRENT_STAGE = 'CurrentStage';
+export const VAR_STAGES = 'Stages';
 export const VAR_ACTIVE_STAGES = 'ActiveStages';
 // non-unique variables
 export const VAR_RESULT = 'result';
 export const VAR_ITEM = 'item';
 export const VAR_WRAPPER_LIST = 'wrapperList';
-export const VAR_L = 'l';
-export const VAR_I = 'i';
-export const VAR_N = 'n';
-export const VAR_S = 's';
+export const VAR_E = 'e'; // catch block error
+export const VAR_I = 'i'; // loop
+export const VAR_J = 'j'; // loop in loop
+export const VAR_L = 'l'; // List
+export const VAR_N = 'n'; // Number
+export const VAR_S = 's'; // String
 export const VAR_PICKLISTVAL = 'pickListVal';
-export const VAR_PLES = 'ples';
-export const VAR_FR = 'fr';
+export const VAR_PLES = 'ples'; // picklist entries
+export const VAR_FR = 'fr'; // Describe Field Result
 
 // TODO: not sure we need this or should even use it
 export type VAR = typeof VAR_ACTIVE_STAGES | typeof VAR_CURRENT_STAGE | typeof VAR_FR | typeof VAR_I | typeof VAR_ITEM | typeof VAR_L | typeof VAR_N

@@ -1,5 +1,6 @@
 import { ApexSection } from "./apex-section.js";
 import { ApexVariableInfo } from "../apex-variable-info.js";
+import { VAR_E } from "../apex-variable.js";
 
 export class ApexTry extends ApexSection {
 
@@ -29,7 +30,7 @@ export class ApexTry extends ApexSection {
         const catchBlock = this.catchBlock?.build() ?? '';
         if (catchBlock) {
             // TODO: Does it make sense to always return from the catch?
-            body += '} catch(Exception e) {' + NL + catchBlock + NL + 'return;' + NL + '}';
+            body += '} catch(Exception ' + VAR_E + ') {' + NL + catchBlock + NL + 'return;' + NL + '}';
         }
 
         // return super.buildWithBody(body);

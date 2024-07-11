@@ -76,18 +76,19 @@ export abstract class ApexClass {
         return this.variables;
     }
 
-    // TODO: There is limited necessity to calculate a variable name to guarantee uniqueness. E.g. if the 
+    // There is limited necessity to calculate a variable name to guarantee uniqueness. E.g. if the 
     // same Subflow is called twice in a Flow, the variable names are different, because they are based on the name 
     // and not on the flowname in the flow-meta.
-    // It makes sense to make sure in the calling code no attempt is made to register the same variable twice.
-    // HOWEVER, there are certain variables Salesforce uses for internal purposes and that are not exposed
-    // as a Flow Resource. As we create them with their intuitive names, they can cause name conflicts. Here are the
-    // cases known to me:
-    // - "Stages" for the List<String> to model Flow stages
-    // - "ActiveStages" for the List<String> to model active Flow stages
-    // - "CurrentStage" for the String to model the current Flow stage
-    // - Variables set by the application to hold results temporarily, e.g. "l" in record lookups
-    // - Maybe loop variables like i, j
+    // We must make sure in the calling code no attempt is made to register the same variable twice.
+    // 
+    // There are two exceptions from this rule - see VAR_* in apex-variable.ts:
+    // 
+    // - Certain variables Salesforce uses for internal purposes and that are not exposed as a Flow Resource. As we 
+    //   create them with their internal names, they can cause name conflicts. E.g. "ActiveStages" might be a variable
+    //   crated by the Flow designer, who at the same time uses the Stage concept.
+    // 
+    // - Variables that are introduced by FlowEx, e.g. for the iterator in a loop or for the Exception in a catch block.
+    // 
     registerVariable(name: string): ApexVariable {
         this.checkValidName(name);
         this.checkUnique(name);
@@ -103,7 +104,7 @@ export abstract class ApexClass {
     }
 
     // TODO: This is verifying the correctness of the code, not of the input data or anything else
-    protected checkUnique(name: string) {
+    private checkUnique(name: string) {
         const existingVariable = this.variables.find((v) => v.getName() === name);
         if (existingVariable && !existingVariable.isLocalVariable()) {
             throw new Error(`Variable ${name} already exists`);

@@ -1,4 +1,4 @@
-import { VAR_ITEM } from "../apex-variable.js";
+import { VAR_I, VAR_ITEM, VAR_J } from "../apex-variable.js";
 import { ApexSection } from "./apex-section.js";
 
 export class ApexFor extends ApexSection {
@@ -12,7 +12,7 @@ export class ApexFor extends ApexSection {
     private itemNames : null | string = null;
 
     // iteration over Integers
-    private counterVariable: string = 'i';
+    private counterVariable: string = VAR_I;
     private assignment: string = '0';
     private condition: string | undefined = undefined;
     private crement: string = '++';
@@ -49,7 +49,7 @@ export class ApexFor extends ApexSection {
     }
 
     j(assignment : number | string) : ApexFor {
-        this.counterVariable = 'j';
+        this.counterVariable = VAR_J;
         this.assignment = typeof assignment === 'string' ? assignment : assignment.toString();
         return this;
     }
