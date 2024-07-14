@@ -1,5 +1,6 @@
 /* eslint-disable complexity */
 import { BasicAction } from "./basic-action.js";
+import { Command } from '@oclif/core'
 
 // TODO: Much of this is tentative, only a start and needs testing
 // Flow Core Action: Send Email
@@ -115,6 +116,10 @@ export default class EmailSimple implements BasicAction {
 
         if(inputParams.get('emailTemplateId')) {
             this.body += `mail.setTemplateId(emailTemplateId);${NL}`;
+
+            if(inputParams.get('useLineBreaks') === 'true') {
+                console.warn('EmailSimple: useLineBreaks is not supported in Apex');
+            }
         }
 
         this.body += `Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });`;
