@@ -1,11 +1,13 @@
 import {Args, Command, Flags } from '@oclif/core'
-
+import { access, constants } from 'node:fs'
 import convert from '../../main/index.js'
  
 export default class Apex extends Command {
 
     static args = {
         pathToFlow: Args.string({description: 'Path to *.flow-meta.xml, the relevant Flow file', required: true}),
+        // eslint-disable-next-line perfectionist/sort-objects
+        directory: Args.directory({description: 'Directory to write the result to', required: false})
     }
 
     static flags = {
@@ -20,8 +22,20 @@ export default class Apex extends Command {
             description: 'Verbose debug output', required: false})
     }
 
-    async run(): Promise<string> {
-        const {args, flags} = await this.parse(Apex)
-        return convert(args.pathToFlow, flags.verbose, flags.silent, flags.noversion, flags.localVariables);
+    async run(): Promise<void> {
+        const {args, flags} = await this.parse(Apex);
+        if(args.directory !== undefined) {
+            this.checkDirectoryWriteable(args.directory);
+        }
+
+        return convert(args, flags);
+    }
+
+    private checkDirectoryWriteable(directory: string): void {
+        access(directory, constants.W_OK, (err) => {
+            if(err) {
+                throw new Error(`Can't write in the specified directory "${directory}" (or it doesn't exist)`);
+            }
+        });
     }
 }

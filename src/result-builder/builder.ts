@@ -57,10 +57,15 @@ export class Builder {
 
     // returns resulting code in a single string; for now this will be the code of an Apex class,
     // potentially with the addition of a stub for a class representing the subflow;
-    build(): string {
-        let result = this.mainClass.build();
+    build(): Map<string, string> {
+        let content = this.mainClass.build();
+        let name = this.mainClass.getName();
+        const result = new Map<string, string>();
+        result.set(name, content);
         for(const otherClass of this.otherClasses.values()) {
-            result += global.NL + global.NL + otherClass.build();
+            content = global.NL + global.NL + otherClass.build();
+            name = otherClass.getName();
+            result.set(name, content);
         }
 
         return result;

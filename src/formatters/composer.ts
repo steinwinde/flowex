@@ -2,15 +2,17 @@ import { PathFinder } from './pathfinder.js';
 
 const TAB_LENGTH = 4;
 
-export default async function getOverall(): Promise<string[]> {
+export default async function getOverall(): Promise<Map<string, string>> {
 
     const p: PathFinder = new PathFinder();
     p.walk();
 
-    let result = knowledge.builder.build();
-    result = indent(result);
+    const result = knowledge.builder.build();
+    for(const [name, content] of result) {
+        result.set(name, indent(content));
+    }
 
-    return [result];
+    return result;
 }
 
 // TODO: remove consecutive empty lines
