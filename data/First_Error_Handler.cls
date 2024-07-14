@@ -45,6 +45,7 @@ public with sharing class FirstErrorHandler {
     private void mySendFriendly(String emailBody, String emailAddresses, String emailSubject) {
         Messaging.reserveSingleEmailCapacity(1);
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setSaveAsActivity(false);
         List<String> toAddresses = new List<String>();
         toAddresses.addAll(emailAddresses.split(','));
         mail.setToAddresses(toAddresses);
