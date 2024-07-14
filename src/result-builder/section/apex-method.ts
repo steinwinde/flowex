@@ -157,15 +157,18 @@ export class ApexMethod extends ApexSection {
 
     private getParams() : string {
         // if(!this.localVariables) return '';
-        return [...this.resolveVariables().values()].map(variable => 
-            variable.getApexVariable().getApexType() + ' ' + variable.getApexVariable().getName()).join(', ');
+        return [...this.resolveVariables().values()]
+            .filter(variable => variable.getApexVariable().isLocalVariable())
+            .map(variable => variable.getApexVariable().getApexType() + ' ' + variable.getApexVariable().getName()).join(', ');
     }
 
     // This is in case we can use the same names in the caller and the parameters; this does not work e.g. for
     // literals
     private getArguments() : string {
         // if(!this.localVariables) return '';
-        return [...this.resolveVariables().values()].map(variable =>
-            variable.getApexVariable().getName()).join(', ');
+        const result = [...this.resolveVariables().values()]
+            .filter(variable => variable.getApexVariable().isLocalVariable())
+            .map(variable => variable.getApexVariable().getName()).join(', ');
+        return result;
     }
 }
