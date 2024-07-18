@@ -21,7 +21,6 @@ yarn.lock
 .eslintrc.json
 .prettierrc.json
 .vscode/
-bin/
 data/Waiting.flow-meta.xml
 documentation/
 emnall.ps1
