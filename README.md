@@ -64,4 +64,24 @@ EXAMPLES
 
 The current version of the code is mostly based on work from summer 2022 and the then metadata format and Flow capabilities. The code has never attempted to cover formulas. It has never covered all available Flow elements and options. The produced Apex has significant design deficiencies, e.g. it is not bulkified.
 
-The produced Apex can never be used as such.
+The produced Apex should never be used as such.
+
+## A word on the case for converting a Flow to Apex
+
+When Apex and Flow look like possible options to implement a requirement, Salesforce recommends Flows. Companies agree: The number of those who feel (and in many cases are) capable of developing and maintaining Flows is much larger than those that can write Apex, and they tend to be less expensive.
+
+One consequence of the partiality of the main actors is the presence of logic implemented in Flows that better was implemented in Apex - not necessarily when it was set up initially, but definitely in its evolved shape, when we come across it.
+
+This tool doesn't take a position in the battle of Flows and Apex. There are excellent articles discussing the subject (see [here](https://architect.salesforce.com/decision-guides/trigger-automation) and [here](https://architect.salesforce.com/decision-guides/build-forms)). Data volume, speed, complex logic and queries are commonly named as drivers to choose Apex. At some point, extending an existing Flow becomes untenable and we wished we had everything in Apex - not necessarily when we started, but today. At this point an automatic conversion comes in handy.
+
+And there are much less considered reasons to convert a Flow to Apex: not in order to execute Apex, but for inspection. Think of 
+
+- how you track changes between Flow versions in source control; 
+
+- the amount of required screenshots necessary to state a question regarding Flows on StackExchange or Trailblazer Community groups; 
+
+- what it takes to understand changes between an active and a more recent version of a Flow, when work stalled a while ago and you completely forgot its history; 
+
+- or what it takes to understand similiarities of two Flows developed in different contexts. 
+
+In all these situations comparing Apex is much better suited than comparing Flows in Flow builder or comparing the XML of Flow definitions.
