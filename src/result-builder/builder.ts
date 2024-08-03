@@ -75,9 +75,9 @@ export class Builder {
         let name = camelize(originalName, true)
             .replaceAll(/-|_/g, '');
 
-        if (name.length > 40) {
-            // class name limit: 40
-            name = name.slice(0, 40);
+        const CLASS_NAME_CHARACTER_LIMIT = 40;
+        if (name.length > CLASS_NAME_CHARACTER_LIMIT) {
+            name = name.slice(0, CLASS_NAME_CHARACTER_LIMIT);
         }
 
         return name;
