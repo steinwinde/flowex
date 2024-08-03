@@ -1,6 +1,6 @@
 import { FlowElement } from "../types/metadata.js";
 import { ApexMethod } from "./section/apex-method.js";
-import { SoqlQuery } from "./soql/soql-query.js";
+import { soql, SoqlQuery } from "./soql/soql-query.js";
 
 
 // Names of variables of potentially global importance, created by Flowex
@@ -261,8 +261,18 @@ export class ApexVariable {
 }
 
 export function apexVariableFromResourceName(resourceName: string): ApexVariable {
-    // we allow callers to pass in a field name, e.g. 'Account.Name', but we only need the object name
     if (resourceName.includes('.')) {
+        if(resourceName.startsWith(VAR_RECORD_PRIOR + '.')) {
+            const type = knowledge.builder.getMainClass().getVariable(VAR_RECORD).getApexType();
+            const query = soql().select(resourceName.slice(VAR_RECORD_PRIOR.length + 1)).from(type).build();
+            const apexVariable = knowledge.builder.getMainClass().registerVariable(VAR_RECORD_PRIOR)
+                .registerSpecial(VAR_RECORD_PRIOR)
+                .registerRightHand(query)
+                .registerType(type);
+            return apexVariable;
+        }
+     
+        // we allow callers to pass in a field name, e.g. 'Account.Name', but we only need the object name
         resourceName = resourceName.split('.')[0];
     }
 

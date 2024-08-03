@@ -146,7 +146,8 @@ export class ApexIfCondition extends ApexSection {
     }
 
     private addReadVariable(name : string) {
-        this.addVariable(apexVariableFromResourceName(name), VariableUse.Read);
+        const apexVariable = apexVariableFromResourceName(name);
+        this.addVariable(apexVariable, VariableUse.Read);
     }
 
     private getConditions(conditions: FlowCondition[] | undefined, includeNullCheck: boolean) : string[] {
