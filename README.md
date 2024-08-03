@@ -72,7 +72,7 @@ When Apex and Flow look like possible options to implement a requirement, Salesf
 
 One consequence of the partiality of the main actors is the presence of logic implemented in Flows that better was implemented in Apex - not necessarily when it was set up initially, but definitely in its evolved shape, when we come across it.
 
-This tool doesn't take a position in the battle of Flows and Apex. There are excellent articles discussing the subject (see [here](https://architect.salesforce.com/decision-guides/trigger-automation) and [here](https://architect.salesforce.com/decision-guides/build-forms)). Data volume, speed, complex logic and queries are commonly named as drivers to choose Apex. At some point, extending an existing Flow becomes untenable and we wished we had everything in Apex - not necessarily when we started, but today. At this point an automatic conversion comes in handy.
+This tool doesn't take a position in the battle of Flows and Apex. There are excellent articles discussing the subject (see [here](https://architect.salesforce.com/decision-guides/trigger-automation) and [here](https://architect.salesforce.com/decision-guides/build-forms)). Data volume, speed, complex logic and queries are commonly named as drivers to choose Apex. At some point, extending an existing Flow becomes untenable. At this point an automatic conversion comes in handy.
 
 And there are much less considered reasons to convert a Flow to Apex: not in order to execute Apex, but for inspection. Think of 
 
