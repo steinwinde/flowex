@@ -22,20 +22,20 @@ export default class EmailAlert implements BasicAction {
         // const sid: string = inputParams.get('SObjectRowId')!;
         // const ref: string = camelize(sid.split('.')[0] + 'Id', false);
         const soqlStatement = soql().select('Id').from('EmailTemplate').where('DeveloperName = \'...\'').exposeField('Id').build();
-        this.body = `// TODO: Provide DeveloperName of the email template configured on ${uniqueName}
-Id templateId = ${soqlStatement};
-// TODO: Create list of recipients as configured on ${uniqueName}
-String[] toAddresses = new String[] {''}; 
-
-Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-mail.setTargetObjectId(UserInfo.getUserId());
-mail.setTreatTargetObjectAsRecipient(false);
-mail.setTemplateId(templateId);
-mail.setToAddresses(toAddresses);
-// TODO: Configure subject and body of email configured on ${uniqueName}
-mail.setSubject('');
-mail.setPlainTextBody('');
-Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });`;
+        this.body = `// TODO: Provide DeveloperName of the email template configured on ${uniqueName}${NL}`
+            + `Id templateId = ${soqlStatement};${NL}`
+            + `// TODO: Create list of recipients as configured on ${uniqueName}${NL}`
+            + `String[] toAddresses = new String[] {''};${NL}`
+            + `${NL}`
+            + `Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();${NL}`
+            + `mail.setTargetObjectId(UserInfo.getUserId());${NL}`
+            + `mail.setTreatTargetObjectAsRecipient(false);`
+            + `mail.setTemplateId(templateId);${NL}`
+            + `mail.setToAddresses(toAddresses);${NL}`
+            + `// TODO: Configure subject and body of email configured on ${uniqueName}${NL}`
+            + `mail.setSubject('');${NL}`
+            + `mail.setPlainTextBody('');${NL}`
+            + `Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });`;
     }
 
     getBody(): string {
