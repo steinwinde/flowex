@@ -86,7 +86,7 @@ export class Knowledge {
         }
     }
 
-    // TODO: does this work? (afore question is from the original code before 2024)
+    // TODO: does this work? (the question is from the original code before 2024)
     // TODO: Is it possible the query returns more than one record, i.e. does not use a WHERE with an Id?
     private addQueriesToClass(): void {
         for (const [k, v] of this.queryObject2fields) {
