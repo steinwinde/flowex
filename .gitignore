@@ -25,4 +25,5 @@ data/Waiting.flow-meta.xml
 documentation/
 emnall.ps1
 mochaall.ps1
+result/
 temp
