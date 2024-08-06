@@ -20,7 +20,6 @@ export class PathFinder {
     constructor() {
         this.elementProcessor =
             new ElementProcessor(
-                this,
             );
     }
 

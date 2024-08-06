@@ -1,6 +1,5 @@
 /* eslint-disable complexity */
 import { BasicAction } from "./basic-action.js";
-import { Command } from '@oclif/core'
 
 // TODO: Much of this is tentative, only a start and needs testing
 // Flow Core Action: Send Email

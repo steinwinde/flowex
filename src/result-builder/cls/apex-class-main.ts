@@ -1,4 +1,4 @@
-import { MethodScout } from '../../extractor/traversals/method-scout.js';
+// import { MethodScout } from '../../extractor/traversals/method-scout.js';
 import { ApexDataType } from '../../formatters/translators/data-type-translator.js';
 import { FlowElement, FlowRunInMode, FlowScreenField, FlowVariable } from "../../types/metadata.js";
 import { camelize, getUniqueName } from "../../utils.js";
@@ -302,12 +302,12 @@ ${this.otherMethods}}`;
     }
 
     private resolveVariablesOfMethods() : void {
-        for(const apexMethod of this.methods.values()) {
-            const apexVariables = apexMethod.resolveVariables();
+        // for(const apexMethod of this.methods.values()) {
+            // const apexVariables = apexMethod.resolveVariables();
             // for(const apexVariable of apexVariables) {
             //     console.error('method, variable:', apexMethod.getName(), ' ', apexVariable.getName());
             // }
-        }
+        // }
     }
 
     private getVariablesSorted() : ApexVariable[] {

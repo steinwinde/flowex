@@ -48,7 +48,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
     private processActionCalls(flowNodes : FlowNode[]) : void {
         if (!flowNodes) return;
         for (const e of flowNodes) {
-            const name: string = this.prepare4Retrieval(e, 'actionCalls');
+            this.prepare4Retrieval(e, 'actionCalls');
             // Everything else is left to pathfinder/element-processor.ts
             // any FlowActionCall must be marked as "must be method"
             // this.knowledge.target2makeMethod.set(name, true);
@@ -64,7 +64,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
                 const s = fai.assignToReference[0];
                 // TODO: this is very similar to code in processRecordCreate - merge the two!
                 if (s.includes('.')) {
-                    const [variable, field] = s.split('.');
+                    const [variable, ] = s.split('.');
                     const customType = this.knowledge.builder.getMainClass().getCustomTypeOfVariable(variable);
                     if (!customType) {
                         // not a custom component
@@ -198,7 +198,7 @@ export class DependentElementProcessor extends BasicElementProcessor {
                         continue;
                     }
 
-                    const [variable, field] = fifa.value[0].elementReference[0].split('.');
+                    const [variable, ] = fifa.value[0].elementReference[0].split('.');
                     const customType = this.knowledge.builder.getMainClass().getCustomTypeOfVariable(variable);
                     if (!customType) {
                         // not a custom component

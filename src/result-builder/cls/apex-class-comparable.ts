@@ -8,7 +8,6 @@ import { ApexSectionLiteral } from "../section/apex-section-literal.js";
 import { ApexSection } from "../section/apex-section.js";
 import { ApexVariable, VAR_I, VAR_ITEM, VAR_RESULT, VAR_WRAPPER_LIST } from "../apex-variable.js";
 import { ApexLeftHand } from "../section/apex-left-hand.js";
-import { ApexRightHand } from "../section/apex-right-hand.js";
 
 export class ApexComparableClass extends ApexClass {
 

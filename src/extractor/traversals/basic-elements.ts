@@ -6,7 +6,6 @@ import { Node } from "../../types/node.js";
 export class BasicElementProcessor {
 
     protected knowledge: Knowledge;
-    private target2makeMethod= new Map<string, boolean>();
 
     constructor(knowledge: Knowledge) {
         this.knowledge = knowledge;

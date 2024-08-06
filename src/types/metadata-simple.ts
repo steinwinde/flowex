@@ -1,4 +1,3 @@
-import Apex from '../commands/apex/index.js';
 import { ApexReference } from '../result-builder/section/apex-reference.js';
 import * as md from './metadata.js';
 

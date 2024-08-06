@@ -1,4 +1,4 @@
-import {FlowAssignment, FlowAssignmentItem, FlowElementReferenceOrValue} from '../../types/metadata.js';
+import {FlowAssignment, FlowAssignmentItem} from '../../types/metadata.js';
 import {MyFlowElementReferenceOrValue} from '../../types/metadata-simple.js';
 import {getFlowElementReferenceOrValue} from '../translators/reference-or-value-translator.js';
 import { Variable } from '../../types/variable.js';
@@ -321,10 +321,10 @@ function getLeftHand(s: string, var2type: Map<string, Variable>) : MyFlowElement
     return {t, v: s};
 }
 
-function removeFieldFromReference(s: string) : string {
-    if (s.includes('.')) {
-        return s.split('.')[0];
-    }
+// function removeFieldFromReference(s: string) : string {
+//     if (s.includes('.')) {
+//         return s.split('.')[0];
+//     }
 
-    return s;
-}
+//     return s;
+// }

@@ -1,6 +1,6 @@
 import { ApexDataType } from '../../formatters/translators/data-type-translator.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
-import {Flow,FlowChoice, FlowConstant, FlowDynamicChoiceSet, FlowLoop, FlowNode, FlowScreen, FlowScreenField, FlowStage, FlowTextTemplate, FlowVariable} 
+import {Flow,FlowChoice, FlowConstant, FlowDynamicChoiceSet, FlowScreen, FlowStage, FlowTextTemplate, FlowVariable} 
     from '../../types/metadata.js';
 import { Variable } from '../../types/variable.js';
 import {Knowledge} from '../index.js';
@@ -13,7 +13,6 @@ import { ApexSectionLiteral } from '../../result-builder/section/apex-section-li
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { METHOD_PREFIXES } from '../../result-builder/section/apex-method.js';
 import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
-// import { ApexLeftHand, apexLeftHandFromLiteral } from '../../result-builder/section/apex-left-hand.js';
 
 export class IndependentElementProcessor extends BasicElementProcessor {
     f: Flow;
@@ -242,7 +241,7 @@ export class IndependentElementProcessor extends BasicElementProcessor {
 // `;
             const sortOrder: string = e.sortOrder[0];
             if (sortOrder === 'Desc') {
-                const apexVariableI = this.knowledge.builder.getMainClass().registerVariable(varI).registerType('Integer').registerLocal(apexMethod);
+                this.knowledge.builder.getMainClass().registerVariable(varI).registerType('Integer').registerLocal(apexMethod);
                 const apexVariableN = this.knowledge.builder.getMainClass().registerVariable(varN).registerType('Integer');
                 const apexVariableS = this.knowledge.builder.getMainClass().registerVariable(varS).registerType('String');
 

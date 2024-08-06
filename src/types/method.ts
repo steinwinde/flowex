@@ -5,7 +5,7 @@ export class Method {
     /**
      * The name of the first node of the method
      */
-    private name: string;
+    // private name: string;
 
     /**
      * The (original) names of the variables used by the method or by the methods called by this method.
@@ -18,15 +18,15 @@ export class Method {
      * determine which methods are called by which methods, because the calling nodes will be identified as
      * belonging to specific methods.
      */
-    private callingNodes: Set<string> = new Set();
+    // private callingNodes: Set<string> = new Set();
 
     /**
      * The names of the methods that are called by this method.
      */
-    private calledMethods: Set<Method> = new Set();
+    // private calledMethods: Set<Method> = new Set();
 
-    constructor(name: string) {
-        this.name = name;
+    constructor() {
+        // this.name = name;
     }
 
     // /**

@@ -2,7 +2,7 @@ import {FlowDynamicChoiceSet, FlowRecordLookup} from '../../types/metadata.js';
 import {translateAssignments4LookupAss, translateAssignments4LookupRef} from '../translators/assignment-translator.js';
 import {SoqlQuery, soql} from '../../result-builder/soql/soql-query.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import { ApexVariable, VAR_L, VAR_RECORD, VAR_RECORD_PRIOR, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
+import { ApexVariable, VAR_L, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { apexIf } from '../../result-builder/section/apex-if.js';
 import { apexIfConditionFromString } from '../../result-builder/section/apex-if-condition.js';

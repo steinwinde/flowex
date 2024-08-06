@@ -10,8 +10,6 @@ import {IndependentElementProcessor} from './traversals/independent-elements.js'
 import {LoopBelongingsProcessor} from './traversals/loop-belonging.js';
 import { Variable } from '../types/variable.js';
 import { Node } from '../types/node.js';
-import { MethodScout } from './traversals/method-scout.js';
-import { Method } from '../types/method.js';
 
 // As we walk through the whole shebang, all elements are processed and independent elements (like variables) are extracted.
 // The later walk by pathfinder will have a tree/network route.

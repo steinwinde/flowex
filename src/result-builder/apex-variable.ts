@@ -58,7 +58,7 @@ export class ApexVariable {
     // Information facilitating later retrieval
     private flowElementName : string | undefined;
     // See VAR_RECORD, VAR_CURRENT_STAGE, VAR_ACTIVE_STAGES etc.
-    private special : VAR | undefined;
+    // private special : VAR | undefined;
 
     constructor(name: string, isConstant: boolean = false) {
 
@@ -80,7 +80,8 @@ export class ApexVariable {
     }
 
     registerSpecial(special: VAR): ApexVariable {
-        this.special = special;
+        // TODO
+        // this.special = special;
         return this;
     }
 

@@ -1,6 +1,6 @@
 import {FlowActionCall, FlowAssignment, FlowCollectionProcessor, FlowCustomError, FlowElement, FlowRecordCreate, FlowRecordDelete, FlowRecordLookup, 
-    FlowRecordUpdate, FlowScreen, FlowSubflow, FlowWait} from '../types/metadata.js';
-import {MyFlowElementReferenceOrValue, MyFlowNodeWithFault} from '../types/metadata-simple.js';
+    FlowRecordUpdate, FlowScreen, FlowSubflow} from '../types/metadata.js';
+import {MyFlowElementReferenceOrValue} from '../types/metadata-simple.js';
 import getAction from './actions/action-builder.js';
 import {getAssignments} from './elements/assignments.js';
 import {getRecordCreates} from './elements/record-create.js';
@@ -9,7 +9,6 @@ import {getRecordLookups} from './elements/record-lookup.js';
 import {getRecordUpdates} from './elements/record-update.js';
 import {getScreens} from './elements/screens.js';
 import {getSubflow} from './elements/subflow.js';
-import { PathFinder } from './pathfinder.js';
 import {getFiltered} from './translators/collection-filter.js';
 import {generateSorter} from './translators/collection-sorter.js';
 import { Variable } from '../types/variable.js';
@@ -22,10 +21,8 @@ import { ApexVariable } from '../result-builder/apex-variable.js';
 import { getFlowElementReferenceOrValue } from './translators/reference-or-value-translator.js';
 
 export class ElementProcessor {
-    private pf: PathFinder;
 
-    constructor(pf: PathFinder) {
-        this.pf = pf;
+    constructor() {
     }
 
     public getCodeUnit(flowElem: FlowElement, elemType: string | undefined, apexMethod : ApexMethod | null): ApexSection | undefined {

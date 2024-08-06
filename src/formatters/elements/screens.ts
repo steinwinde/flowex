@@ -4,7 +4,6 @@ import {soql} from '../../result-builder/soql/soql-query.js';
 import { ApexComment } from '../../result-builder/section/apex-comment.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
 import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
-import { ApexVariable } from '../../result-builder/apex-variable.js';
 import { extractFilterVariables } from '../translators/query-filter.js';
 
 export function getScreens(flowElem: FlowScreen): ApexSection {

@@ -6,7 +6,7 @@
 // TODO: This fuses in an ad hoc manner two very similar inputs for apexConditions: FlowRecordFilter and FlowCondition;
 // This should be merged properly.
 
-import {FlowCollectionProcessor, FlowCondition, FlowDecision, FlowRecordFilter, FlowRule, FlowWait, FlowWaitEvent} from '../../types/metadata.js';
+import {FlowCollectionProcessor, FlowCondition, FlowDecision, FlowRecordFilter, FlowRule, FlowWaitEvent} from '../../types/metadata.js';
 import {ApexReference} from './apex-reference.js';
 import {concatFilters} from '../../formatters/translators/query-filter.js';
 import {getFlowElementReferenceOrValue} from '../../formatters/translators/reference-or-value-translator.js';
