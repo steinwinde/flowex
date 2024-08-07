@@ -1,6 +1,6 @@
+import { access, constants } from 'node:fs';
 import { SfCommand, Flags } from '@salesforce/sf-plugins-core';
 import { Messages } from '@salesforce/core';
-import { access, constants } from 'node:fs'
 import convert from '../main/index.js';
 
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
@@ -24,6 +24,7 @@ export default class Flowex extends SfCommand<FlowexResult> {
     }),
     'output-directory': Flags.directory({
       summary: messages.getMessage('flags.output-directory.summary'),
+      // eslint-disable-next-line sf-plugin/dash-o
       char: 'o',
       exists: true,
     }),
@@ -45,27 +46,27 @@ export default class Flowex extends SfCommand<FlowexResult> {
     }),
   };
 
+  private static checkDirectoryWriteable(directory: string): void {
+    access(directory, constants.W_OK, (err) => {
+      if (err) {
+        throw new Error(`Can't write in the specified directory "${directory}"`);
+      }
+    });
+  }
+
   public async run(): Promise<FlowexResult> {
     const { flags } = await this.parse(Flowex);
-    
-    if(flags['output-directory']) {
-        this.checkDirectoryWriteable(flags['output-directory']);
+
+    if (flags['output-directory']) {
+      Flowex.checkDirectoryWriteable(flags['output-directory']);
     }
 
     await convert(flags);
 
     this.log(`Processing ${flags['input-file']}...`);
-    
+
     return {
-      result: 'bingo'
+      result: 'bingo',
     };
   }
-
-  private checkDirectoryWriteable(directory: string): void {
-    access(directory, constants.W_OK, (err) => {
-        if(err) {
-            throw new Error(`Can't write in the specified directory "${directory}"`);
-        }
-    });
-}
 }

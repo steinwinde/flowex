@@ -1,9 +1,9 @@
-import {run} from './apex-command-runner.js';
+import { run } from './apex-command-runner.js';
 
 const NAME = 'Create_Record_All';
 const PATH = 'data-test\\elements\\';
 
 describe('apex', () => {
-    // All choices "Create Records" element
-    run(NAME, PATH);
+  // All choices "Create Records" element
+  void run(NAME, PATH);
 });
