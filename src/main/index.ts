@@ -37,7 +37,8 @@ export default async function convert(flags: FlagsParam): Promise<void> {
       const oneOutput = [...outputs.values()].join(NL);
       // TODO
       // eslint-disable-next-line no-console
-      console.log(oneOutput);
+      //   console.log(oneOutput);
+      process.stdout.write(oneOutput);
     } else {
       for (const [fileName, content] of outputs) {
         writeFile(outputDir + '/' + fileName + '.cls', content, (err) => {

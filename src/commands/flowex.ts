@@ -63,7 +63,7 @@ export default class Flowex extends SfCommand<FlowexResult> {
 
     await convert(flags);
 
-    this.log(`Processing ${flags['input-file']}...`);
+    // this.log(`Processing ${flags['input-file']}...`);
 
     return {
       result: 'bingo',
