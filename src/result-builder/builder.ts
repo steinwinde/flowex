@@ -27,7 +27,8 @@ export class Builder {
     flowRunInMode?: FlowRunInMode
   ): Builder {
     Builder.version = version;
-    if (name === 'Test' || this.instance === undefined) {
+    const isTestContext = typeof global.it === 'function';
+    if (isTestContext || this.instance === undefined) {
       this.instance = new Builder(name, localVariables, flowRunInMode);
     }
 

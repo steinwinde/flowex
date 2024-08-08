@@ -6,9 +6,7 @@ import convert from '../main/index.js';
 Messages.importMessagesDirectoryFromMetaUrl(import.meta.url);
 const messages = Messages.loadMessages('flowex', 'flowex');
 
-export type FlowexResult = {
-  result: string;
-};
+export type FlowexResult = string;
 
 export default class Flowex extends SfCommand<FlowexResult> {
   public static readonly summary = messages.getMessage('summary');
@@ -61,12 +59,9 @@ export default class Flowex extends SfCommand<FlowexResult> {
       Flowex.checkDirectoryWriteable(flags['output-directory']);
     }
 
-    await convert(flags);
+    const result = await convert(flags);
+    if (!flags['silent']) this.log(result);
 
-    // this.log(`Processing ${flags['input-file']}...`);
-
-    return {
-      result: 'bingo',
-    };
+    return result;
   }
 }

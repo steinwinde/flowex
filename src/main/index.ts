@@ -14,7 +14,7 @@ type FlagsParam = {
   verbose: boolean;
 };
 
-export default async function convert(flags: FlagsParam): Promise<void> {
+export default async function convert(flags: FlagsParam): Promise<string> {
   global.NL = '\n';
 
   const parser = getParser();
@@ -34,11 +34,7 @@ export default async function convert(flags: FlagsParam): Promise<void> {
   if (!flags.silent) {
     const outputDir = flags['output-directory'];
     if (outputDir === undefined) {
-      const oneOutput = [...outputs.values()].join(NL);
-      // TODO
-      // eslint-disable-next-line no-console
-      //   console.log(oneOutput);
-      process.stdout.write(oneOutput);
+      return [...outputs.values()].join(NL) + NL;
     } else {
       for (const [fileName, content] of outputs) {
         writeFile(outputDir + '/' + fileName + '.cls', content, (err) => {
@@ -49,4 +45,6 @@ export default async function convert(flags: FlagsParam): Promise<void> {
       }
     }
   }
+
+  return '';
 }
