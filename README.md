@@ -1,24 +1,41 @@
 # FlowEx
 
-A command line tool to convert Salesforce Flows into Apex code
+A plugin for sf to convert Salesforce Flows into Apex code
 
+## Install and Run FlowEx
 
-## Development
+The following assumes a Window Powershell or CMD environment. bash & Co. should work similar. [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) is still required. And - of course - [sf](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_unified.htm) is required too :-)
 
-FlowEx is designed to become a [sf](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_unified.htm) plug-in in the future, but is currently stand-alone. For options, see "Run FlowEx" below.
+Clone the repository:
 
-Here's a quick way to run and test source code modifications with a suitable Flow definition (example based on a Windows prompt):
-
-```sh-session
-[project directory].\bin\dev apex .\Order_Alignment.flow-meta.xml
+```
+git clone https://github.com/steinwinde/flowex.git
+cd .\flowex\
+npm install
 ```
 
-This does not require to transpile explicitly.
+Ignore the warnings. At this point a Flow definition file (\*.flow-meta.xml) can be parsed and the resulting Apex sent to standard output. The following uses a Flow definition, which is part of the repository in order to test:
 
-An earlier version of the source code is [used in the context of a Node.js web server](https://www.steinwinde.com/flowex). The source has also been compiled with `oclif pack win`, but not tested as such.
+```
+.\bin\dev.cmd flowex --input-file .\data\All-GetRecords-Element.flow-meta.xml
+```
+
+Now get the local code working as a plugin of sf:
+
+```
+npm run build
+sf plugins link .
+```
+
+FlowEx is a sf plugin now:
+
+```
+sf flowex --input-file .\data\All-GetRecords-Element.flow-meta.xml
+```
+
+## FlowEx development
 
 Any relevant code change should come with TypeScript test modules. The project utilizes [mocha](https://mochajs.org/). Much of the logic is not based on [explicit Salesforce documentation](https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_visual_workflow.htm), but on knowledge gained by inspecting Flow definitions downloaded from orgs.
-
 
 ## What happens during execution
 
@@ -36,37 +53,13 @@ From there, the tool proceeds roughly according to the following steps:
 
 - The literal Apex strings are compiled and send to the output.
 
-
-## Run FlowEx
-
-Here's what a stand-alone use of FlowEx would look like.
-```
-USAGE
-  $ flowex apex FLOW [--globalVariables] [--noversion] [--silent] [--verbose]
-
-ARGUMENTS
-  FLOW  The Flow definition file (a file with the format extension "flow-meta.xml")
-
-FLAGS
-  -g, --globalVariables  (optional) Make all variables class fields, i.e. keep them global like in the Flow
-  -n, --noversion  (optional) Do not include version information in output
-  -s, --silent  (optional) Be silent. Do not write to standard output
-  -v, --verbose  (optional) Verbose debug output
-
-DESCRIPTION
-  A command line tool to convert Salesforce Flows into Apex code
-
-EXAMPLES
-  $ flowex apex Order_Alignment.flow-meta.xml
-```
-
 ## Limitations
 
 The current version of the code is mostly based on work from summer 2022 and the then metadata format and Flow capabilities. The code has never attempted to cover formulas. It has never covered all available Flow elements and options. The produced Apex has significant design deficiencies, e.g. it is not bulkified.
 
 The produced Apex should never be used as such.
 
-## A word on the case for converting a Flow to Apex
+## Why convert a Flow to Apex?
 
 When Apex and Flow look like possible options to implement a requirement, Salesforce recommends Flows. Companies agree: The number of those who feel (and in many cases are) capable of developing and maintaining Flows is much larger than those that can write Apex, and they tend to be less expensive.
 
@@ -74,14 +67,14 @@ One consequence of the partiality of the main actors is the presence of logic im
 
 This tool doesn't take a position in the battle of Flows and Apex. There are excellent articles discussing the subject (see [here](https://architect.salesforce.com/decision-guides/trigger-automation) and [here](https://architect.salesforce.com/decision-guides/build-forms)). Data volume, speed, complex logic and queries are commonly named as drivers to choose Apex. At some point, extending an existing Flow becomes untenable. At this point an automatic conversion comes in handy.
 
-And there are much less considered reasons to convert a Flow to Apex: not in order to execute Apex, but for inspection. Think of 
+And there are much less considered reasons to convert a Flow to Apex: not in order to execute Apex, but for inspection. Think of
 
-- how you track changes between Flow versions in source control; 
+- how you track changes between Flow versions in source control;
 
-- the amount of required screenshots necessary to state a question regarding Flows on StackExchange or Trailblazer Community groups; 
+- the amount of required screenshots necessary to state a question regarding Flows on StackExchange or Trailblazer Community groups;
 
-- what it takes to understand changes between an active and a more recent version of a Flow, when work stalled a while ago and you completely forgot its history; 
+- what it takes to understand changes between an active and a more recent version of a Flow, when work stalled a while ago and you completely forgot its history;
 
-- or what it takes to understand similiarities of two Flows developed in different contexts. 
+- or what it takes to understand similiarities of two Flows developed in different contexts.
 
 In all these situations comparing Apex is much better suited than comparing Flows in Flow builder or comparing the XML of Flow definitions.
