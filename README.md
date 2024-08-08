@@ -4,9 +4,14 @@ A plugin for sf to convert Salesforce Flows into Apex code
 
 ## Install and Run FlowEx
 
-The following assumes a Window Powershell or CMD environment. bash & Co. should work similar. [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) is still required. And - of course - [sf](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference_unified.htm) is required too :-)
+Here's the shortest way to make use of FlowEx to translate ServicesFlow to Apex:
 
-Clone the repository:
+```
+sf plugins install flowex
+sf flowex --input-file .\data\ServicesFlow.flow-meta.xml
+```
+
+Alternatively, if you have [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) and want the source code, clone the repository:
 
 ```
 git clone https://github.com/steinwinde/flowex.git
@@ -14,7 +19,7 @@ cd .\flowex\
 npm install
 ```
 
-Ignore the warnings. At this point a Flow definition file (\*.flow-meta.xml) can be parsed and the resulting Apex sent to standard output. The following uses a Flow definition, which is part of the repository in order to test:
+Ignore the warnings. At this point of the source based installation, a Flow definition file (\*.flow-meta.xml) can be parsed and the resulting Apex sent to standard output. The following uses a Flow definition, which is part of the repository in order to test:
 
 ```
 .\bin\dev.cmd flowex --input-file .\data\All-GetRecords-Element.flow-meta.xml

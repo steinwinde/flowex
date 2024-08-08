@@ -1,7 +1,7 @@
 {
   "name": "flowex",
   "description": "Apex code generation based on Flow metadata",
-  "version": "0.4.27",
+  "version": "1.0.1",
   "author": "steinwinde",
   "bin": {
     "flowex": "./bin/run.js"
