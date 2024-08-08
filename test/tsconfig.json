@@ -3,5 +3,6 @@
   "include": ["./**/*.ts"],
   "compilerOptions": {
     "skipLibCheck": true
-  }
+  },
+  "files": ["../src/global.d.ts"]
 }
