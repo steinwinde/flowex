@@ -3,7 +3,7 @@ import { Knowledge } from '../extractor/index.js';
 import getOverall from '../formatters/composer.js';
 import { getParser } from '../parsers/index.js';
 
-export const VERSION = '0.1.3';
+export const VERSION = '1.0.0';
 
 type FlagsParam = {
   'input-file': string;
