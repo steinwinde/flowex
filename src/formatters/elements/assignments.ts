@@ -5,12 +5,7 @@ import { Variable } from '../../types/variable.js';
 import { ApexFor, apexFor } from '../../result-builder/section/apex-for.js';
 import { apexIf } from '../../result-builder/section/apex-if.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import {
-  ApexVariable,
-  VAR_CURRENT_STAGE,
-  VAR_RECORD,
-  apexVariableFromResourceName,
-} from '../../result-builder/apex-variable.js';
+import { ApexVariable, VAR_CURRENT_STAGE, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { ApexSectionLiteral } from '../../result-builder/section/apex-section-literal.js';
 import { ApexIfCondition, apexIfConditionFromString } from '../../result-builder/section/apex-if-condition.js';
@@ -66,8 +61,11 @@ function translateAssignmentItem(ai: FlowAssignmentItem, var2type: Map<string, V
   switch (op) {
     case 'Assign': {
       // "Equals"
-      // TODO: not sure, if this is correct for picklist/multi-picklist, but for all others it is
-      // TODO: not sure, if the right hand is a variable
+      // TODO: not sure, if we need an extra condition for picklist/multi-picklist
+      if (leftHand.v.includes(')Trigger.new[0]).')) {
+        return new ApexAssignment(leftHand.v, rightHand.v);
+      }
+
       const apexVariable = apexVariableFromResourceName(leftHand.v);
       const apexLeftHand = new ApexLeftHand(leftHand.v, [apexVariable]);
       const apexAssignment = new ApexAssignment(apexLeftHand, rightHand.v);
@@ -332,11 +330,11 @@ function getLeftHand(s: string, var2type: Map<string, Variable>): MyFlowElementR
   }
 
   if (s.startsWith('$Record.')) {
-    return { t: 'Unknown', v: 'record.' + s.split('.')[1] };
+    return { t: 'Unknown', v: '((' + knowledge.sObjectType + ')Trigger.new[0]).' + s.split('.')[1] };
   }
 
   if (s === '$Record') {
-    return { t: 'Record', v: VAR_RECORD };
+    return { t: 'Record', v: 'Trigger.new[0]' };
   }
 
   if (s.includes('.')) {

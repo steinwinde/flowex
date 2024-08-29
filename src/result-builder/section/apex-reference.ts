@@ -1,31 +1,19 @@
 /* eslint-disable @typescript-eslint/member-ordering */
-import { VAR_RECORD, VAR_RECORD_PRIOR } from '../apex-variable.js';
+import { VAR_RECORD } from '../apex-variable.js';
 import { soql } from '../soql/soql-query.js';
 import { ApexSection } from './apex-section.js';
 
-// TODO: This should hold a variable and the build method should be called in the context of parent section builds
-// or why is this an ApexSection?
+// TODO: This should potentially hold a variable, or why is this an ApexSection? (But it could as well be
+// "Trigger.new[0]" or similar.)
 export class ApexReference extends ApexSection {
   private reference: string = '';
 
-  public set(reference: string): ApexReference {
-    this.reference = ApexReference.getReference(reference);
-    super.addStringSection(this.reference);
-
-    return this;
+  public constructor(inputReference: string, sObjectType?: string) {
+    super();
+    this.reference = ApexReference.getReference(inputReference, sObjectType);
   }
 
-  // TODO: Is this always correct? Is there no better way?
-  public isField(): boolean {
-    return !this.reference.startsWith('$') && !this.reference.endsWith(']') && this.reference.includes('.');
-  }
-
-  public getFirstPart(): string {
-    if (this.isField()) {
-      const obj: string = this.reference.split('.')[0];
-      return obj;
-    }
-
+  public build(): string {
     return this.reference;
   }
 
@@ -33,11 +21,12 @@ export class ApexReference extends ApexSection {
   // private
   // -----------------------------------------------------------------------------------------------------------------
 
-  // TODO: Unnecessarily static
-  private static getReference(s: string): string {
+  private static getReference(s: string, sObjectType?: string): string {
     if (!s.includes('.')) {
       if (s === '$Record') {
-        return VAR_RECORD;
+        return sObjectType ? `((${sObjectType})Trigger.new[0])` : VAR_RECORD;
+      } else if (s === '$Record__Prior') {
+        return `((${sObjectType!})Trigger.old[0])`;
       }
 
       return s;
@@ -86,12 +75,13 @@ export class ApexReference extends ApexSection {
       }
 
       case '$Record': {
-        const v: string = VAR_RECORD + '.' + right;
+        // Scheduled Flows and Platform Event Flows might have Record variables too
+        const v: string = sObjectType ? `((${sObjectType})Trigger.new[0]).` + right : VAR_RECORD + '.' + right;
         return v;
       }
 
       case '$Record__Prior': {
-        const v: string = VAR_RECORD_PRIOR + '.' + right;
+        const v: string = `((${sObjectType!})Trigger.old[0]).` + right;
         return v;
       }
 

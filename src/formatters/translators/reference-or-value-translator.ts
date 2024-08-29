@@ -11,7 +11,12 @@ export function getFlowElementReferenceOrValue(
   // if formula, the choice of the data type in the UI is just to limit the choice of formulas; the entry
   // will be elementReference whatever data type is chosen
   if (val.elementReference) {
-    const apexReference = new ApexReference().set(val.elementReference[0]);
+    const isRecordTriggeredFlow =
+      knowledge.triggerType === 'RecordBeforeSave' || knowledge.triggerType === 'RecordAfterSave';
+    const apexReference = new ApexReference(
+      val.elementReference[0],
+      isRecordTriggeredFlow ? knowledge.sObjectType : undefined
+    );
     // TODO: This should not be built here, but inside the ApexSection that uses it
     const variable: string = apexReference.build();
     // TODO: variable can be "null", for instance; this must be translated to a valid name in Apex

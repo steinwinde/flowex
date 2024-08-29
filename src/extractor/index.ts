@@ -13,8 +13,9 @@ import { LoopBelongingsProcessor } from './traversals/loop-belonging.js';
 export class Knowledge {
   /** general purpose results from XML analysis */
   public triggerType: string | undefined = undefined;
-  /** convenience variable (triggerType has this information too) */
-  public recordBeforeSave = false;
+
+  /** object type in case of e.g. record triggered flow */
+  public sObjectType: string | undefined = undefined;
 
   /** all nodes, including the start node, key is the name of the FlowElement */
   public name2node = new Map<string, Node>();
@@ -62,6 +63,10 @@ export class Knowledge {
     if (this.queryObject2fields.size > 0) {
       this.addQueriesToClass();
     }
+  }
+
+  public recordBeforeSave(): boolean {
+    return this.triggerType === 'RecordBeforeSave';
   }
 
   private populateRequiredMethods(): void {

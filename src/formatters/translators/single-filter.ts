@@ -35,7 +35,7 @@
 
 //     for (const filter of filters) {
 //         // e.g. "$Record.FirstName"
-//         const apexReference = new ApexReference().set(filter.field[0]);
+//         const apexReference = new ApexReference(filter.field[0]);
 //         const leftValueReference: string = apexReference.build();
 
 //         if (leftValueReference.includes('.')) {

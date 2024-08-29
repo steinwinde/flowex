@@ -1,14 +1,15 @@
 import { FlowElement } from '../types/metadata.js';
 import { ApexMethod } from './section/apex-method.js';
-import { soql, SoqlQuery } from './soql/soql-query.js';
+import { SoqlQuery } from './soql/soql-query.js';
 
 // Names of variables of potentially global importance, created by Flowex
 // globally unique variables
+// Not for record triggered flows, but for scheduled flows with configured objects and for Platform Event triggered flows
 export const VAR_RECORD = 'record';
-export const VAR_RECORD_PRIOR = 'recordPrior';
 export const VAR_CURRENT_STAGE = 'CurrentStage';
 export const VAR_STAGES = 'Stages';
 export const VAR_ACTIVE_STAGES = 'ActiveStages';
+
 // non-unique variables
 export const VAR_RESULT = 'result';
 export const VAR_ITEM = 'item';
@@ -35,7 +36,6 @@ export type VAR =
   | typeof VAR_PICKLISTVAL
   | typeof VAR_PLES
   | typeof VAR_RECORD
-  | typeof VAR_RECORD_PRIOR
   | typeof VAR_RESULT
   | typeof VAR_S
   | typeof VAR_WRAPPER_LIST;
@@ -295,21 +295,6 @@ export class ApexVariable {
 export function apexVariableFromResourceName(resourceName: string): ApexVariable {
   let sanitizedResourceName = resourceName;
   if (sanitizedResourceName.includes('.')) {
-    if (sanitizedResourceName.startsWith(VAR_RECORD_PRIOR + '.')) {
-      const type = knowledge.builder.getMainClass().getVariable(VAR_RECORD).getApexType();
-      const query = soql()
-        .select(sanitizedResourceName.slice(VAR_RECORD_PRIOR.length + 1))
-        .from(type)
-        .build();
-      const apexVariable = knowledge.builder
-        .getMainClass()
-        .registerVariable(VAR_RECORD_PRIOR)
-        .registerSpecial(VAR_RECORD_PRIOR)
-        .registerRightHand(query)
-        .registerType(type);
-      return apexVariable;
-    }
-
     // we allow callers to pass in a field name, e.g. 'Account.Name', but we only need the object name
     sanitizedResourceName = sanitizedResourceName.split('.')[0];
   }

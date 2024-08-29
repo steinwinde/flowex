@@ -1,4 +1,3 @@
-import { VAR_RECORD } from '../result-builder/apex-variable.js';
 import { FlowCollectionProcessor, FlowElementReferenceOrValue, FlowRecordLookup } from '../types/metadata.js';
 import { Variable } from '../types/variable.js';
 
@@ -92,10 +91,4 @@ export function add2Object2FieldsMaps(
       processObjects2Fields(obj, field, objects2Fields);
     }
   }
-}
-
-export function moveEntryToTop(old: Map<string, string>, sObject: string): Map<string, string> {
-  const m: Map<string, string> = new Map<string, string>([[VAR_RECORD, `private ${sObject} record;`]]);
-  for (const [k, v] of old.entries()) m.set(k, v);
-  return m;
 }

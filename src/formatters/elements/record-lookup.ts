@@ -50,17 +50,6 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
   const firstRecordOnly = getFirstRecordOnly(flowElem, ref);
   const soqlStatement = getSoqlStatement(flowElem, obj, firstRecordOnly);
 
-  // // TODO: This is not the right place; we probably should do this earlier
-  // for(const apexVariable of soqlWhereApexVariablesByName) {
-  //     if(apexVariable.getName()===VAR_RECORD_PRIOR) {
-  //         const apexPrior = knowledge.builder.getMainClass().registerVariable(VAR_RECORD_PRIOR).registerConstructorVariable();
-  //         const apexType = knowledge.builder.getMainClass().getVariable(VAR_RECORD).getApexType();
-  //         if(apexType) {
-  //             apexPrior.registerType(apexType);
-  //         }
-  //     }
-  // }
-
   // const soqlWhereApexVariables = soqlWhereApexVariablesByName.map(e => knowledge.builder.getMainClass().getVariable(e.getName()));
 
   const name: string = flowElem.name[0];

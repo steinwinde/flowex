@@ -48,9 +48,16 @@ export class ApexIfCondition extends ApexSection {
     }
 
     for (const filter of filters) {
-      // e.g. "$Record.FirstName"
-      const apexReference = new ApexReference().set(filter.field[0]);
-      const leftValueReference: string = apexReference.build();
+      const field = filter.field[0];
+      let leftValueReference;
+      if (field.includes(')Trigger.')) {
+        leftValueReference = field;
+      } else {
+        const isRecordTriggeredFlow =
+          knowledge.triggerType === 'RecordBeforeSave' || knowledge.triggerType === 'RecordAfterSave';
+        const apexReference = new ApexReference(field, isRecordTriggeredFlow ? knowledge.sObjectType : undefined);
+        leftValueReference = apexReference.build();
+      }
 
       if (leftValueReference.includes('.')) {
         const obj: string = leftValueReference.split('.')[0];
@@ -107,6 +114,20 @@ export class ApexIfCondition extends ApexSection {
     return result;
   }
 
+  // TODO: Is this always correct? Is there no better way?
+  private static isField(reference: string): boolean {
+    return !reference.startsWith('$') && !reference.endsWith(']') && reference.includes('.');
+  }
+
+  private static getFirstPart(reference: string): string {
+    if (ApexIfCondition.isField(reference)) {
+      const obj: string = reference.split('.')[0];
+      return obj;
+    }
+
+    return reference;
+  }
+
   public setString(body: string, apexVariables: ApexVariable[]): ApexIfCondition {
     this.addStringSection(body);
     for (const apexVariable of apexVariables) {
@@ -159,6 +180,8 @@ export class ApexIfCondition extends ApexSection {
     this.addVariable(apexVariable, VariableUse.Read);
   }
 
+  // TODO: Simplify this method
+  // eslint-disable-next-line complexity
   private getConditions(conditions: FlowCondition[] | undefined, includeNullCheck: boolean): string[] {
     const ar: string[] = [];
     if (conditions === undefined) return ar;
@@ -170,21 +193,32 @@ export class ApexIfCondition extends ApexSection {
       b = ')';
     }
 
-    const isChecked4Null: string[] = [];
+    const isAlreadyChecked4Null: string[] = [];
 
     for (const condition of conditions) {
-      const apexReference = new ApexReference().set(condition.leftValueReference[0]);
+      const isRecordTriggeredFlow =
+        knowledge.triggerType === 'RecordBeforeSave' || knowledge.triggerType === 'RecordAfterSave';
+      const apexReference = new ApexReference(
+        condition.leftValueReference[0],
+        isRecordTriggeredFlow ? knowledge.sObjectType : undefined
+      );
       const leftValueReference: string = apexReference.build();
-      this.addReadVariable(apexReference.getFirstPart());
+      if (!leftValueReference.includes(')Trigger.')) {
+        this.addReadVariable(ApexIfCondition.getFirstPart(leftValueReference));
+      }
 
       // Not sure, if we will use this for anything but "decisions", but in the context of "decisions" flows do an
       // implicit null check. This null check is added here to make the "else" clause chosen in case anything in the
       // "if" condition is null.
-      if (includeNullCheck && apexReference.isField()) {
-        const obj = apexReference.getFirstPart();
-        if (!isChecked4Null.includes(obj)) {
+      if (
+        includeNullCheck &&
+        ApexIfCondition.isField(leftValueReference) &&
+        !leftValueReference.includes(')Trigger.')
+      ) {
+        const obj = ApexIfCondition.getFirstPart(leftValueReference);
+        if (!isAlreadyChecked4Null.includes(obj)) {
           ar.push(obj + ' != null');
-          isChecked4Null.push(obj);
+          isAlreadyChecked4Null.push(obj);
         }
       }
 
@@ -192,7 +226,10 @@ export class ApexIfCondition extends ApexSection {
       let rightValue = '';
       if (condition.rightValue) {
         const flowElementReferenceOrValue = getFlowElementReferenceOrValue(condition.rightValue[0], false);
-        if (flowElementReferenceOrValue.t === 'elementReference') {
+        if (
+          flowElementReferenceOrValue.t === 'elementReference' &&
+          !flowElementReferenceOrValue.v.includes(')Trigger.')
+        ) {
           // this.variableNames.add(flowElementReferenceOrValue.v);
           this.addReadVariable(flowElementReferenceOrValue.v);
         }

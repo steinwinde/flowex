@@ -30,21 +30,34 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     // const inputReference : string = getLeftHand(flowElem.inputReference[0]);
 
     let inputReference = flowElem.inputReference[0];
+    const isRecordSaveTrigger =
+      knowledge.triggerType === 'RecordAfterSave' || knowledge.triggerType === 'RecordBeforeSave';
     if (flowElem.inputReference[0] === '$Record') {
-      inputReference = VAR_RECORD;
+      if (isRecordSaveTrigger) {
+        inputReference = 'Trigger.new[0]';
+      } else {
+        inputReference = VAR_RECORD;
+      }
     } else if (flowElem.inputReference[0].startsWith('$Record.')) {
-      inputReference = 'record.' + flowElem.inputReference[0].slice(8);
+      if (isRecordSaveTrigger) {
+        inputReference = 'Trigger.new[0].' + flowElem.inputReference[0].slice(8);
+      } else {
+        inputReference = 'record.' + flowElem.inputReference[0].slice(8);
+      }
     }
 
-    // const updateLine = knowledge.recordBeforeSave ? '' : `update ${inputReference};`;
+    // const updateLine = knowledge.recordBeforeSave() ? '' : `update ${inputReference};`;
     let apexSectionLiteral: ApexSectionLiteral | undefined;
-    if (!knowledge.recordBeforeSave) {
+    if (!knowledge.recordBeforeSave()) {
       apexSectionLiteral = new ApexSectionLiteral(`update ${inputReference};`);
     }
 
     let assignments = new Array<ApexAssignment>();
     if (flowElem.inputAssignments) {
-      assignments = translateAssignments4Update(flowElem.inputAssignments, VAR_RECORD);
+      assignments = translateAssignments4Update(
+        flowElem.inputAssignments,
+        isRecordSaveTrigger ? 'Trigger.new[0]' : VAR_RECORD
+      );
     }
 
     if (flowElem.filters) {
@@ -55,7 +68,7 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
       const condition: ApexIfCondition = apexIfConditionFromFlowRecordFilter(
         flowElem.filterLogic,
         flowElem.filters,
-        VAR_RECORD
+        isRecordSaveTrigger ? 'Trigger.new[0]' : VAR_RECORD
       );
       const apexSection = new ApexSection().addSections(assignments);
       if (apexSectionLiteral !== undefined) {

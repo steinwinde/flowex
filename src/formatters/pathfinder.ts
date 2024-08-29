@@ -73,7 +73,7 @@ export class PathFinder {
     apexMethod: ApexMethod | null
   ): ApexSection | undefined {
     if (currentNodeName === null) return undefined;
-    const flowType = knowledge.name2node.get(currentNodeName)?.type;
+    const elemType = knowledge.name2node.get(currentNodeName)?.type;
 
     const HAVE_FAULT_CONNECTOR: string[] = [
       'actionCalls',
@@ -83,11 +83,11 @@ export class PathFinder {
       'recordUpdates',
       'waits',
     ];
-    if (flowType && HAVE_FAULT_CONNECTOR.includes(flowType)) {
+    if (elemType && HAVE_FAULT_CONNECTOR.includes(elemType)) {
       const flowElem: FlowElement | undefined = knowledge.name2node.get(currentNodeName)?.flowElement;
       const elem = flowElem as MyFlowNodeWithFault;
       if (elem.faultConnector) {
-        const apexSection = ElementProcessor.getCodeUnit(flowElem!, flowType, apexMethod)!;
+        const apexSection = ElementProcessor.getCodeUnit(flowElem!, elemType, apexMethod)!;
         const tryBlock: ApexSection | undefined = renderPlain(
           currentNodeName,
           apexMethod,
@@ -107,20 +107,20 @@ export class PathFinder {
       }
     }
 
-    if (flowType === 'decisions') {
+    if (elemType === 'decisions') {
       return renderDecisions(currentNodeName, apexMethod, this.processWithMethodOption.bind(this));
     }
 
-    if (flowType === 'loops') {
+    if (elemType === 'loops') {
       return renderLoops(currentNodeName, apexMethod, this.processWithMethodOption.bind(this));
     }
 
-    if (flowType === 'waits') {
+    if (elemType === 'waits') {
       return renderWaits(currentNodeName, apexMethod, this.processWithMethodOption.bind(this));
     }
 
     const flowElem: FlowElement | undefined = knowledge.name2node.get(currentNodeName)?.flowElement;
-    const apexSection = ElementProcessor.getCodeUnit(flowElem!, flowType, apexMethod);
+    const apexSection = ElementProcessor.getCodeUnit(flowElem!, elemType, apexMethod);
 
     if (apexSection === undefined) {
       return undefined;

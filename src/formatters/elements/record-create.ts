@@ -1,7 +1,7 @@
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { ApexSectionLiteral } from '../../result-builder/section/apex-section-literal.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import { ApexVariable, VAR_RECORD } from '../../result-builder/apex-variable.js';
+import { ApexVariable } from '../../result-builder/apex-variable.js';
 import { FlowRecordCreate } from '../../types/metadata.js';
 import { translateAssignments4Create } from '../translators/assignment-translator.js';
 import { ApexRightHand } from '../../result-builder/section/apex-right-hand.js';
@@ -29,23 +29,15 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
     ? flowElem.assignRecordIdToReference[0]
     : undefined;
 
-  let inputReference: string | undefined = flowElem.inputReference ? flowElem.inputReference[0] : undefined;
+  const inputReference = flowElem.inputReference ? flowElem.inputReference[0] : undefined;
   if (inputReference) {
     // case Ax and Bx: pre-existing variable expected
-    // TODO: SuperDecisionAllCreate is an absurd test case that inserts the incoming $Record; in order to make
-    // this test case work temporarily, I do this (after correction of test case to be deleted!):
-    if (inputReference === '$Record') {
-      inputReference = VAR_RECORD;
-    }
 
     const apexSectionLiteral = new ApexSectionLiteral(`insert ${inputReference};`);
-    if (inputReference !== VAR_RECORD) {
-      const apexVariable = knowledge.builder.getMainClass().getVariable(inputReference);
-      apexSectionLiteral.registerVariable(apexVariable);
-    }
+    const apexVariable = knowledge.builder.getMainClass().getVariable(inputReference);
+    apexSectionLiteral.registerVariable(apexVariable);
 
     return apexSectionLiteral;
-    // return `insert ${inputReference};`;
   }
 
   if (!flowElem.object) {
@@ -80,9 +72,6 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
   const apexLeftHand = new ApexLeftHand(`${localObj}${variableName}`, apexVariables);
   const assignment = new ApexAssignment(apexLeftHand, `new ${obj}(${vars})`);
   const apexSectionLiteral = new ApexSectionLiteral(`insert ${variableName};`);
-
-  //     const s = `${localObj}${variable} = new ${obj}(${vars});
-  // insert ${variable};${additionalAssignment}`;
 
   const apexSection = new ApexSection().addSection(assignment).addSection(apexSectionLiteral);
 

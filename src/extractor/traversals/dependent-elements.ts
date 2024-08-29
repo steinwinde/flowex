@@ -306,16 +306,12 @@ export class DependentElementProcessor extends BasicElementProcessor {
       this.knowledge.triggerType = flowStart.triggerType[0];
       // in RecordBeforeSave, elements become a different meaning; e.g. the EditRecords element does not
       // update (itself) the record, just sets values on it
-      this.knowledge.recordBeforeSave = flowStart.triggerType[0] === 'RecordBeforeSave';
-      if (flowStart.recordTriggerType) {
-        const recordTriggeredFlows: string[] = ['Create', 'Update', 'CreateAndUpdate', 'Delete'];
-        const hasRecordId: boolean = recordTriggeredFlows.includes(flowStart.recordTriggerType[0]);
-        if (hasRecordId) {
-          this.makeHasRecord(flowStart);
-        }
-      } else if (flowStart.triggerType[0] === 'Scheduled' || flowStart.triggerType[0] === 'PlatformEvent') {
-        // Scheduled flows have a record variable too (at least, if "object" is configured on the start element)
-        // Platform Event flows too - the error output from the event, e.g. BatchApexErrorEvent
+      this.knowledge.sObjectType = flowStart.object ? flowStart.object[0] : undefined;
+      if (flowStart.triggerType[0] === 'Scheduled' || flowStart.triggerType[0] === 'PlatformEvent') {
+        // Certain flows have a record variable that needs to be reflected in Apex:
+        // - Scheduled flows (they have the variable at least, if "object" is configured on the start element)
+        // - Platform Event flows - the error output from the event, e.g. BatchApexErrorEvent
+        // Record triggered flows have the record variable too, but we can use the Trigger context variable instead
         this.makeHasRecord(flowStart);
       }
     }
