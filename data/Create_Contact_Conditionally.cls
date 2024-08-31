@@ -1,11 +1,9 @@
 public with sharing class CreateContactConditionally {
     
-    private Account record;
     private Contact Create_Contact = null;
     private Contact Get_Existing_Contacts = null;
     
-    public CreateContactConditionally(Account record) {
-        this.record = record;
+    public CreateContactConditionally() {
         run();
     }
     
@@ -15,7 +13,7 @@ public with sharing class CreateContactConditionally {
             // nothing to do
         } else {
             Create_Contact = new Contact(
-                AccountId = record.Id,
+                AccountId = ((Account)Trigger.new[0]).Id,
                 AssistantName = [SELECT Name FROM Organization].Name,
                 Birthdate = Date.newInstance(1968, 4, 22),
                 CleanStatus = 'Acknowledged',
@@ -29,6 +27,7 @@ public with sharing class CreateContactConditionally {
     }
     
     private Contact getContact() {
-        return [SELECT Id FROM Contact WHERE AccountId = :record.Id AND Birthdate = :Date.newInstance(1968, 4, 22) LIMIT 1] ?? null;
+        return [SELECT Id FROM Contact WHERE AccountId = :((Account)Trigger.new[0]).Id AND Birthdate = :Date.newInstance(1968, 4, 22) LIMIT 1] ?? null;
     }
 }
+

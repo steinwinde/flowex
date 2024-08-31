@@ -1,19 +1,18 @@
 public with sharing class DeleteRecordsAll {
     
-    private Account record;
     private List<Account> ManyRecords = new List<Account>();
     private Account SomeRecord = null;
     
-    public DeleteRecordsAll(Account record) {
-        this.record = record;
+    public DeleteRecordsAll() {
         run();
     }
     
     private void run() {
-        SomeRecord = record;
+        SomeRecord = ((Account)Trigger.new[0]);
         ManyRecords.add(SomeRecord);
         delete SomeRecord;
         delete ManyRecords;
         delete [SELECT Id FROM Account WHERE (BillingCountry = 'France' AND BillingCity = 'Paris') OR BillingCountry LIKE '%Germany%'];
     }
 }
+

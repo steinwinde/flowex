@@ -5,10 +5,13 @@ import Flowex from '../../src/commands/flowex.js';
 export async function run(what: string, path: string = 'data', nameClassFile: string = what): Promise<void> {
   it(what, async () => {
     const f = `${path}\\${nameClassFile}.cls`;
-    const correctContent = fs.readFileSync(f, 'utf8');
+    let correctContent = fs.readFileSync(f, 'utf8');
 
-    const stdout = await Flowex.run(['--input-file', `${path}\\${what}.flow-meta.xml`]);
+    // Remove the last character, because this.log() adds a newline to the stdout; we compare the returned value with
+    // what had been stdout
+    correctContent = correctContent.slice(0, -1);
 
-    expect(stdout).to.eql(correctContent);
+    const result = await Flowex.run(['--input-file', `${path}\\${what}.flow-meta.xml`]);
+    expect(result).to.eql(correctContent);
   });
 }

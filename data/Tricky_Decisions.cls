@@ -15,3 +15,4 @@ public with sharing class TrickyDecisions {
         }
     }
 }
+

@@ -1,11 +1,9 @@
 public with sharing class FirstErrorHandler {
     
-    private Account record;
     private Decimal x = null;
     private Contact Get_Contacts = null;
     
-    public FirstErrorHandler(Account record) {
-        this.record = record;
+    public FirstErrorHandler() {
         run();
     }
     
@@ -35,7 +33,7 @@ public with sharing class FirstErrorHandler {
     }
     
     private Contact getContact() {
-        return [SELECT Id FROM Contact WHERE AccountId = :record.Id LIMIT 1] ?? null;
+        return [SELECT Id FROM Contact WHERE AccountId = :((Account)Trigger.new[0]).Id LIMIT 1] ?? null;
     }
     
     private void illogical() {
@@ -54,3 +52,4 @@ public with sharing class FirstErrorHandler {
         Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
     }
 }
+

@@ -1,6 +1,5 @@
 public with sharing class AllGetRecordsElements {
     
-    private Account record;
     public String MyDepartment = null;
     private Contact Get_Children_A = null;
     private Contact Get_Children_B = null;
@@ -10,8 +9,7 @@ public with sharing class AllGetRecordsElements {
     private List<Contact> Get_Children_F = new List<Contact>();
     private List<Contact> Get_Children_G = new List<Contact>();
     
-    public AllGetRecordsElements(Account record, String MyDepartment) {
-        this.record = record;
+    public AllGetRecordsElements(String MyDepartment) {
         this.MyDepartment = MyDepartment;
         run();
     }
@@ -27,15 +25,15 @@ public with sharing class AllGetRecordsElements {
     }
     
     private Contact getContact() {
-        return [SELECT Id FROM Contact WHERE AccountId = :record.Id LIMIT 1] ?? null;
+        return [SELECT Id FROM Contact WHERE AccountId = :((Account)Trigger.new[0]).Id LIMIT 1] ?? null;
     }
     
     private Contact getContact1() {
-        return [SELECT Id, Birthdate FROM Contact WHERE AccountId = :record.Id LIMIT 1] ?? null;
+        return [SELECT Id, Birthdate FROM Contact WHERE AccountId = :((Account)Trigger.new[0]).Id LIMIT 1] ?? null;
     }
     
     private void populateContact() {
-        List<Contact> l = [SELECT Id, Department FROM Contact WHERE AccountId = :record.Id LIMIT 1];
+        List<Contact> l = [SELECT Id, Department FROM Contact WHERE AccountId = :((Account)Trigger.new[0]).Id LIMIT 1];
         if(l.size()!=0) {
             Get_Children_A.Id = l[0].Id;
             Get_Children_A.Department = l[0].Department;
@@ -43,7 +41,7 @@ public with sharing class AllGetRecordsElements {
     }
     
     private void populateContact1() {
-        List<Contact> l = [SELECT Department FROM Contact WHERE AccountId = :record.Id LIMIT 1];
+        List<Contact> l = [SELECT Department FROM Contact WHERE AccountId = :((Account)Trigger.new[0]).Id LIMIT 1];
         if(l.size()!=0) {
             MyDepartment = l[0].Department;
         } else {
@@ -51,3 +49,4 @@ public with sharing class AllGetRecordsElements {
         }
     }
 }
+

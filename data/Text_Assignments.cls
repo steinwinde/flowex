@@ -1,12 +1,10 @@
 public with sharing class TextAssignments {
     
-    private Account record;
     private List<String> CommonVars = new List<String>();
     private String SingleText = null;
     private List<String> TextList = new List<String>();
     
-    public TextAssignments(Account record) {
-        this.record = record;
+    public TextAssignments() {
         run();
     }
     
@@ -57,3 +55,4 @@ public with sharing class TextAssignments {
         }
     }
 }
+

@@ -1,7 +1,6 @@
 public with sharing class GetRecordsAll {
     
     private static final String Constantfornotequal = 'Foo';
-    private Account record;
     private Account SomeAccount = null;
     private Boolean SomeBoolean = null;
     private String SomeId = null;
@@ -18,8 +17,7 @@ public with sharing class GetRecordsAll {
     private Account Only_the_first_Choose_fields_assign_In_separate = null;
     private Account When_no_records_are_assigned_set_null = null;
     
-    public GetRecordsAll(Account record) {
-        this.record = record;
+    public GetRecordsAll() {
         run();
     }
     
@@ -37,7 +35,7 @@ public with sharing class GetRecordsAll {
     }
     
     private Account getAccount() {
-        return [SELECT Id FROM Account WHERE BillingCity = :record.Id LIMIT 1] ?? null;
+        return [SELECT Id FROM Account WHERE BillingCity = :((Account)Trigger.new[0]).Id LIMIT 1] ?? null;
     }
     
     private Account getAccount1() {
@@ -76,3 +74,4 @@ public with sharing class GetRecordsAll {
         }
     }
 }
+

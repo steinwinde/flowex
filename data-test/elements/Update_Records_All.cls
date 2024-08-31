@@ -1,21 +1,19 @@
 public with sharing class UpdateRecordsAll {
     
-    private Account record;
     private List<Account> MyCollection = new List<Account>();
     
-    public UpdateRecordsAll(Account record) {
-        this.record = record;
+    public UpdateRecordsAll() {
         run();
     }
     
     private void run() {
-        record.BillingCountry = 'France';
-        update record;
-        if((record.BillingCity == 'Paris') || (record.BillingCountry == 'Germany')) {
-            record.BillingCountry = 'Georgia';
-            update record;
+        ((Account)Trigger.new[0]).BillingCountry = 'France';
+        update Trigger.new[0];
+        if((((Account)Trigger.new[0]).BillingCity == 'Paris') || (((Account)Trigger.new[0]).BillingCountry == 'Germany')) {
+            ((Account)Trigger.new[0]).BillingCountry = 'Georgia';
+            update Trigger.new[0];
         }
-        update record;
+        update Trigger.new[0];
         update MyCollection;
         updateUpdateRecordsSpecifyConditionsAll();
         updateUpdateRecordsSpecifyConditionsSpecify();
@@ -37,3 +35,4 @@ public with sharing class UpdateRecordsAll {
         update l;
     }
 }
+
