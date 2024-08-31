@@ -1,6 +1,6 @@
 # summary
 
-Summary of a command.
+Plugin to convert a Flow to Apex.
 
 # description
 
