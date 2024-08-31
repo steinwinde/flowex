@@ -22,8 +22,13 @@ export function translateAssignments4Create(fifas: FlowInputFieldAssignment[]): 
 export function translateAssignments4Update(fifas: FlowInputFieldAssignment[], ref: string): ApexAssignment[] {
   const results = new Array<ApexAssignment>();
   for (const a of fifas) {
-    const apexVariableLeftHand = knowledge.builder.getMainClass().getVariable(ref);
-    const leftHand = new ApexLeftHand(`${ref}.${a.field}`, [apexVariableLeftHand]);
+    let leftHand: ApexLeftHand;
+    if (ref === 'Trigger.new[0]') {
+      leftHand = new ApexLeftHand(`((${knowledge.sObjectType!})${ref}).${a.field}`, []);
+    } else {
+      const apexVariableLeftHand = knowledge.builder.getMainClass().getVariable(ref);
+      leftHand = new ApexLeftHand(`${ref}.${a.field}`, [apexVariableLeftHand]);
+    }
 
     const referenceOrValue = getFlowElementReferenceOrValue(a.value[0], false);
     const val: string = referenceOrValue.v;

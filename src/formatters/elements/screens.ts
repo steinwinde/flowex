@@ -1,10 +1,7 @@
 import { FlowDynamicChoiceSet, FlowScreen, FlowScreenField } from '../../types/metadata.js';
-import { soql } from '../../result-builder/soql/soql-query.js';
 import { ApexComment } from '../../result-builder/section/apex-comment.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
-import { extractFilterVariables } from '../translators/query-filter.js';
-import { getOrderByField, isOrderByDesc } from './record-lookup.js';
+import { getSoqlFromFilter } from '../translators/query-filter.js';
 
 export function getScreens(flowElem: FlowScreen): ApexSection {
   const apexSection = new ApexSection();
@@ -117,24 +114,16 @@ function getQuery(dyn: FlowDynamicChoiceSet): string {
     }
   }
 
-  const soqlQuery = soql().select(fields).from(obj);
-  if (dyn.filters) {
-    const apexVariables = extractFilterVariables(dyn.filters);
-    const soqlWhere = new SoqlWhere(dyn.filters, dyn.filterLogic[0], apexVariables);
-    const where = soqlWhere;
-    soqlQuery.where(where);
-  }
+  const query = getSoqlFromFilter(
+    fields,
+    obj,
+    dyn.filters,
+    dyn.filterLogic,
+    dyn.sortField ? dyn.sortField : undefined,
+    dyn.sortOrder ? dyn.sortOrder : undefined,
+    dyn.limit ? dyn.limit[0] : undefined
+  );
 
-  const orderByField = getOrderByField(dyn);
-  if (orderByField !== null) {
-    const orderByDesc = isOrderByDesc(dyn);
-    soqlQuery.orderBy(orderByField, orderByDesc);
-  }
-
-  if (dyn.limit) {
-    soqlQuery.limit(dyn.limit[0]);
-  }
-
-  const body = `${dyn.name[0]} = ${soqlQuery.build()};`;
+  const body = `${dyn.name[0]} = ${query.build()};`;
   return body;
 }

@@ -1,6 +1,5 @@
 import { FlowRecordUpdate } from '../../types/metadata.js';
 import { translateAssignments4Update } from '../translators/assignment-translator.js';
-import { soql } from '../../result-builder/soql/soql-query.js';
 import { apexIf } from '../../result-builder/section/apex-if.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
 import {
@@ -12,11 +11,10 @@ import { ApexAssignment } from '../../result-builder/section/apex-assignment.js'
 import { ApexVariable, VAR_ITEM, VAR_L, VAR_RECORD } from '../../result-builder/apex-variable.js';
 import { apexFor } from '../../result-builder/section/apex-for.js';
 import { ApexMethodCall } from '../../result-builder/section/apex-method-call.js';
-import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
 import { METHOD_PREFIXES } from '../../result-builder/section/apex-method.js';
 import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
 import { ApexRightHand } from '../../result-builder/section/apex-right-hand.js';
-import { extractFilterVariables } from '../translators/query-filter.js';
+import { getSoqlFromFilter } from '../translators/query-filter.js';
 
 // in case of RecordBeforeSave, required inputReference ("$Record"), triggerTypes, assignments, but no updates
 export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | undefined {
@@ -68,7 +66,7 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
       const condition: ApexIfCondition = apexIfConditionFromFlowRecordFilter(
         flowElem.filterLogic,
         flowElem.filters,
-        isRecordSaveTrigger ? 'Trigger.new[0]' : VAR_RECORD
+        isRecordSaveTrigger ? `((${knowledge.sObjectType!})Trigger.new[0])` : VAR_RECORD
       );
       const apexSection = new ApexSection().addSections(assignments);
       if (apexSectionLiteral !== undefined) {
@@ -94,14 +92,16 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     return apexSectionLiteral;
   }
 
-  // TODO: where statement might refer to variables, or not?
+  // TODO: where statement might refer to variables, or no t?
   // c) "Specify conditions to identify records, and set fields individually" => Object, Filter Conditions and Field Values
   //    has filterLogic, filters; inputAssignments for the assignments; object (NO inputReference)
   //    Requires to load a list of unrelated objects, which the flow can't refer to later. Separate method!
-  const whereVariables = extractFilterVariables(flowElem.filters);
-  const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic, whereVariables);
 
   const obj: string = flowElem.object[0];
+  const fields = ['Id'];
+  const query = getSoqlFromFilter(fields, obj, flowElem.filters, flowElem.filterLogic);
+  const rightHand = new ApexRightHand().setSoqlQuery(query);
+
   knowledge.builder
     .getMainClass()
     .registerVariable(VAR_ITEM)
@@ -112,7 +112,6 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
   const apexMethod = knowledge.builder
     .getMainClass()
     .registerMethod(flowElem, METHOD_PREFIXES.METHOD_PREFIX_UPDATE, flowElem.name[0]);
-  const soqlStatement = soql().select('Id').from(obj).where(soqlWhere);
   const apexVariableL = knowledge.builder
     .getMainClass()
     .registerVariable(VAR_L)
@@ -120,7 +119,6 @@ export function getRecordUpdates(flowElem: FlowRecordUpdate): ApexSection | unde
     .registerIsCollection()
     .registerLocal(apexMethod);
   const leftHand = new ApexLeftHand(`List<${obj}> ${VAR_L}`, [apexVariableL]);
-  const rightHand = new ApexRightHand().setSoqlQuery(soqlStatement);
   const assignmentForList = new ApexAssignment(leftHand, rightHand);
   const apexForExpression = apexFor().item(obj).itemInstance(VAR_ITEM).items(VAR_L).set(assignments);
   const apexVariable = new ApexVariable(VAR_L).registerType(obj).registerIsCollection();

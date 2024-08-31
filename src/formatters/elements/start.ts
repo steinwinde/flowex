@@ -1,7 +1,5 @@
 import { FlowStart } from '../../types/metadata.js';
-import { soql } from '../../result-builder/soql/soql-query.js';
-import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
-import { ApexVariable } from '../../result-builder/apex-variable.js';
+import { getSoqlFromFilter } from '../translators/query-filter.js';
 
 export function getStart(start: FlowStart): void {
   if (start.scheduledPaths) {
@@ -9,11 +7,8 @@ export function getStart(start: FlowStart): void {
   }
 
   if (start.filters) {
-    const apexVariables = new Array<ApexVariable>();
-    const soqlWhere = new SoqlWhere(start.filters, start.filterLogic, apexVariables);
-    const where = soqlWhere.build();
-    const obj: string = start.object[0];
-    const soqlStatement = soql().select('Id').from(obj).where(where).build();
+    const query = getSoqlFromFilter(['Id'], start.object[0], start.filters, start.filterLogic);
+    const soqlStatement = query.build();
     const comment = `TODO: Add a WHERE clause like in the following SELECT to the query that populates the records passed into the class:
 // ${soqlStatement};
 `;

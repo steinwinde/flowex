@@ -33,6 +33,11 @@ export function getRecordCreates(flowElem: FlowRecordCreate): ApexSection | unde
   if (inputReference) {
     // case Ax and Bx: pre-existing variable expected
 
+    if (inputReference === '$Record') {
+      // not a real use case, but we handle it
+      return new ApexSectionLiteral('insert Trigger.new[0];');
+    }
+
     const apexSectionLiteral = new ApexSectionLiteral(`insert ${inputReference};`);
     const apexVariable = knowledge.builder.getMainClass().getVariable(inputReference);
     apexSectionLiteral.registerVariable(apexVariable);

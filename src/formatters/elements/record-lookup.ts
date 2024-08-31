@@ -3,19 +3,18 @@ import {
   translateAssignments4LookupAss,
   translateAssignments4LookupRef,
 } from '../translators/assignment-translator.js';
-import { SoqlQuery, soql } from '../../result-builder/soql/soql-query.js';
+import { SoqlQuery } from '../../result-builder/soql/soql-query.js';
 import { ApexSection } from '../../result-builder/section/apex-section.js';
-import { ApexVariable, VAR_L, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
+import { VAR_L, apexVariableFromResourceName } from '../../result-builder/apex-variable.js';
 import { ApexAssignment } from '../../result-builder/section/apex-assignment.js';
 import { apexIf } from '../../result-builder/section/apex-if.js';
 import { apexIfConditionFromString } from '../../result-builder/section/apex-if-condition.js';
 import { ApexSectionLiteral } from '../../result-builder/section/apex-section-literal.js';
 import { ApexMethodCall } from '../../result-builder/section/apex-method-call.js';
-import { SoqlWhere } from '../../result-builder/soql/soql-where.js';
 import { METHOD_PREFIXES } from '../../result-builder/section/apex-method.js';
 import { ApexLeftHand } from '../../result-builder/section/apex-left-hand.js';
 import { ApexRightHand } from '../../result-builder/section/apex-right-hand.js';
-import { extractFilterVariables } from '../translators/query-filter.js';
+import { getSoqlFromFilter } from '../translators/query-filter.js';
 
 // First choice: "How many records to store"
 // - Only the first record
@@ -163,28 +162,16 @@ export function getRecordLookups(flowElem: FlowRecordLookup): ApexSection {
 function getSoqlStatement(flowElem: FlowRecordLookup, obj: string, firstRecordOnly: boolean): SoqlQuery {
   // TODO: write a test case that tests fields required by other elements...
   const fields = getFields(flowElem, knowledge.objects2Fields);
-  let soqlWhereVariables = new Array<ApexVariable>();
-  const query = soql().select(fields).from(obj);
 
-  if (flowElem.filters) {
-    soqlWhereVariables = extractFilterVariables(flowElem.filters);
-    const soqlWhere = new SoqlWhere(flowElem.filters, flowElem.filterLogic, soqlWhereVariables);
-    query.where(soqlWhere);
-  }
-
-  // "filters" and "filterLogic" can both be missing
-  const orderByField = getOrderByField(flowElem);
-  if (orderByField) {
-    query.orderBy(orderByField, isOrderByDesc(flowElem));
-  }
-
-  // Salesforce also specifies a "limit" field on FlowRecordLookup, but I didn't see it in the XML, nor
-  // in the metadata API; but see here:
-  // https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_visual_workflow.htm#FlowRecordLookup
-  if (firstRecordOnly) {
-    query.limit(1);
-  }
-
+  const query = getSoqlFromFilter(
+    fields,
+    obj,
+    flowElem.filters,
+    flowElem.filterLogic,
+    flowElem.sortField,
+    flowElem.sortOrder,
+    firstRecordOnly ? 1 : undefined
+  );
   return query;
 }
 

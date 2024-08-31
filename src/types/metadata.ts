@@ -378,7 +378,7 @@ export interface FlowDynamicChoiceSet extends FlowElement {
   collectionReference: string[];
   dataType: FlowDataType[];
   displayField: string[];
-  filterLogic: string[];
+  filterLogic: string;
   filters: FlowRecordFilter[];
   limit: number[];
   object: string[];
