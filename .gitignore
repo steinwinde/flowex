@@ -4,6 +4,7 @@
 .prettierrc.json
 .vscode/
 .wireit
+*.flow-meta.xml
 *.log
 *.ps1
 /.github
